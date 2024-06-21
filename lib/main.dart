@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'cigaretteTracker.dart';
+import 'screens/cigaretteTracker.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,18 +15,18 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: CigaretteTracker(),
         appBar: AppBar(
-          title: const Text('Cigarette Tracker'),
+          title: const Text('My Quit Buddy'),
         ),
         bottomNavigationBar: NavigationBar(
         // selectedIndex: _selectedIndex,
         // onDestinationSelected: _onItemTapped,
         destinations: const <NavigationDestination>[
           NavigationDestination(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.smoking_rooms),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.auto_graph),
             label: 'Search',
           ),
           NavigationDestination(
