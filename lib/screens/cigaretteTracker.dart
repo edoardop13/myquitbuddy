@@ -48,7 +48,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                 ),
               ),
             ),
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
             LinearPercentIndicator(
               lineHeight: 16.0,
               percent: (_cigaretteCount.toDouble() <= 10
@@ -58,7 +58,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
               backgroundColor: Colors.grey,
               progressColor: _getColor(),
             ),
-            SizedBox(height: 60),
+            const SizedBox(height: 60),
             Text(
               '$_cigaretteCount',
               style: TextStyle(
