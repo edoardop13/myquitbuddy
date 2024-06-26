@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/cigaretteTracker.dart';
+import 'screens/home/cigaretteTracker.dart';
 import 'screens/profilePage.dart';
 
 void main() => runApp(MyApp());
