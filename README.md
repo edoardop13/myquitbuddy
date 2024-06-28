@@ -1,4 +1,4 @@
-# myquitbuddy
+# MyQuitBuddy
 
 A new Flutter project.
 
