@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
-import 'screens/cigaretteTracker.dart';
-import 'screens/profilePage.dart';
+import 'package:flutter/services.dart';
+import 'package:myquitbuddy/screens/homePage.dart';
+import 'package:myquitbuddy/screens/loginPage.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // The app can be used only vertically
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -12,59 +20,29 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-      seedColor: Colors.blueGrey,
-      brightness: Brightness.light,
-    ),
-    primaryColor: Colors.blueGrey,
+          seedColor: Colors.blueGrey,
+          brightness: Brightness.light,
+        ),
+        primaryColor: Colors.blueGrey,
       ),
-      home: MyHomePage(),
+      home: FutureBuilder(
+        future: showLogin(),
+        builder:(context, snapshot) {
+          if(snapshot.hasData) {
+            return const HomePage();
+            // return snapshot.hasData ? LoginPage() : const HomePage(); // TODO: gestione login
+          } else {
+            return Scaffold(
+              appBar: AppBar(title: const Text('MyQuitBuddy')), body: null
+            );
+          }
+        },
+      ),
     );
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex = 0;
-
-  final List<Widget> _tabs = [
-    CigaretteTracker(),
-    CigaretteTracker(),
-    ProfilePage()
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Quit Buddy'),
-      ),
-      body: _tabs[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box_outlined),
-            label: 'Tracker',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month_outlined),
-            label: 'Statistics',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
+  Future<bool> showLogin() async {
+    //TODO: gestione token e login
+    return true;
   }
 }
