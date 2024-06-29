@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myquitbuddy/screens/cigaretteTracker.dart';
+import 'package:myquitbuddy/screens/home/cigaretteTracker.dart';
 import 'package:myquitbuddy/screens/profilePage.dart';
 import 'package:myquitbuddy/screens/statisticsPage.dart';
 
@@ -21,25 +21,28 @@ class HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('MyQuitBuddy'),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        indicatorColor: Colors.amber,
+        selectedIndex: selectedIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
             icon: Icon(Icons.add_box_outlined),
-            label: 'Tracker',
+            label: 'Home',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.calendar_month_outlined),
-            label: 'Statistics',
+            label: 'Notifications',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_outlined),
-            label: 'Profile',
+          NavigationDestination(
+            icon:  Icon(Icons.person),
+            label: 'Messages',
           ),
         ],
-        currentIndex: selectedIndex,
-        onTap: (index) => pageController.animateToPage(index,
-            duration: const Duration(milliseconds: 100),
-            curve: Curves.easeInToLinear),
       ),
       body: PageView(
         controller: pageController,

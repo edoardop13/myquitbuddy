@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'screens/home/cigaretteTracker.dart';
+import 'screens/profilePage.dart';
 import 'package:flutter/services.dart';
-import 'package:myquitbuddy/screens/homePage.dart';
-import 'package:myquitbuddy/screens/loginPage.dart';
+import 'package:myquitbuddy/screens/home/homePage.dart';
+import 'package:myquitbuddy/screens/login/loginPage.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
