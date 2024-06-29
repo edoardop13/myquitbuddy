@@ -35,6 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
     CigaretteTracker(),
     ProfilePage()
   ];
+  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -43,25 +44,26 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('My Quit Buddy'),
       ),
       body: _tabs[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (int index) {
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
           setState(() {
-            _currentIndex = index;
+            currentPageIndex = index;
           });
         },
-        items: const [
-          BottomNavigationBarItem(
+        indicatorColor: Colors.amber,
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
             icon: Icon(Icons.add_box_outlined),
-            label: 'Tracker',
+            label: 'Home',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.calendar_month_outlined),
-            label: 'Statistics',
+            label: 'Notifications',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+          NavigationDestination(
+            icon:  Icon(Icons.person),
+            label: 'Messages',
           ),
         ],
       ),
