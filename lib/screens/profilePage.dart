@@ -1,6 +1,8 @@
 import 'package:babstrap_settings_screen/babstrap_settings_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myquitbuddy/managers/tokenManager.dart';
+import 'package:myquitbuddy/screens/login/loginPage.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -22,7 +24,7 @@ class _ProfilePage extends State<ProfilePage> {
                   // User card
                   BigUserCard(
                     userName: "Nome Cognome",
-                    userProfilePic: AssetImage("assets/logo.png"),
+                    userProfilePic: AssetImage("assets/icon.png"),
                     backgroundColor: Colors.lightBlue,
                   ),
                   SettingsGroup(
@@ -42,7 +44,15 @@ class _ProfilePage extends State<ProfilePage> {
                         ),
                       ),
                       SettingsItem(
-                        onTap: () {},
+                        onTap: () { 
+                          TokenManager.clearTokens();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginPage()),
+                            (route) => false,
+                          );
+                        },
                         icons: Icons.exit_to_app_rounded,
                         title: "Sign Out",
                       ),
@@ -59,8 +69,6 @@ class _ProfilePage extends State<ProfilePage> {
                 ],
               ),
             ),
-        
-      
     ));
   } //build
 }

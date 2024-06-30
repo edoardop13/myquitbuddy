@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "dio": "^0.0.3",
+    "http": "^0.0.1-security",
+    "intl": "^1.2.5"
+  }
+}

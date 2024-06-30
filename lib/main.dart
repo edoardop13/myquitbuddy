@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myquitbuddy/managers/tokenManager.dart';
+import 'package:myquitbuddy/sharedWidgets/loading.dart';
+import 'package:myquitbuddy/utils/appInterceptor.dart';
 import 'screens/home/cigaretteTracker.dart';
 import 'screens/profilePage.dart';
 import 'package:flutter/services.dart';
@@ -30,13 +33,15 @@ class MyApp extends StatelessWidget {
       home: FutureBuilder(
         future: showLogin(),
         builder:(context, snapshot) {
-          if(snapshot.hasData) {
-            return const HomePage();
-            // return snapshot.hasData ? LoginPage() : const HomePage(); // TODO: gestione login
+          if (snapshot.hasData) {
+            final showLogin = snapshot.data as bool;
+            return showLogin
+                ? const LoginPage()
+                : const HomePage();
           } else {
             return Scaffold(
-              appBar: AppBar(title: const Text('MyQuitBuddy')), body: null
-            );
+                appBar: AppBar(title: const Text("MyQuitBuddy")),
+                body: const Loading());
           }
         },
       ),
@@ -44,7 +49,11 @@ class MyApp extends StatelessWidget {
   }
 
   Future<bool> showLogin() async {
-    //TODO: gestione token e login
-    return true;
+    final isTokenExpired = await TokenManager.isAccessTokenExpired();
+    if (!isTokenExpired) {
+      return false;
+    }
+    final credentialStillValid = await AppInterceptor().refreshToken();
+    return !credentialStillValid;
   }
 }

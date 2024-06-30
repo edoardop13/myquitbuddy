@@ -36,11 +36,11 @@ class HomePageState extends State<HomePage> {
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month_outlined),
-            label: 'Notifications',
+            label: 'Statistics',
           ),
           NavigationDestination(
             icon:  Icon(Icons.person),
-            label: 'Messages',
+            label: 'Profile',
           ),
         ],
       ),
