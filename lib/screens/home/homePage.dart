@@ -39,14 +39,14 @@ class HomePageState extends State<HomePage> {
             label: 'Statistics',
           ),
           NavigationDestination(
-            icon:  Icon(Icons.person),
+            icon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],
       ),
       body: PageView(
         controller: pageController,
-        children: [CigaretteTracker(), StatisticsPage(), ProfilePage()],
+        children: [ProfilePage(), StatisticsPage(), ProfilePage()],
         onPageChanged: (index) => setState(() {
           selectedIndex = index;
         }),

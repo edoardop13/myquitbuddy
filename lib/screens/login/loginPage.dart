@@ -29,14 +29,16 @@ class LoginState extends State<LoginPage> {
           child: Form(
             key: formKey,
             child:
-                Column(mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/icon/icon.png', height: 120),
-                  const SizedBox(height: 15.0),
-                  const Text("Login", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                  const SizedBox(height: 5.0),
-                  const Text("Please login to continue", style: TextStyle(fontWeight: FontWeight.normal, fontSize: 15)),
-                  const SizedBox(height: 15.0),
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Image.asset('assets/icon/icon.png', height: 120),
+              const SizedBox(height: 15.0),
+              const Text("Login",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              const SizedBox(height: 5.0),
+              const Text("Please login to continue",
+                  style:
+                      TextStyle(fontWeight: FontWeight.normal, fontSize: 15)),
+              const SizedBox(height: 15.0),
               TextFormField(
                 decoration: const InputDecoration(
                     labelText: 'Username', icon: Icon(Icons.person)),
@@ -67,7 +69,8 @@ class LoginState extends State<LoginPage> {
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       formKey.currentState!.save();
-                      final success = await login(context, _username!, _password!);
+                      final success =
+                          await login(context, _username!, _password!);
                       if (success && context.mounted) {
                         Navigator.pushReplacement(
                             context,
@@ -77,11 +80,11 @@ class LoginState extends State<LoginPage> {
                         ScaffoldMessenger.of(context)
                           ..removeCurrentSnackBar()
                           ..showSnackBar(
-                            const SnackBar(content: Text('Invalid credential')),
+                            const SnackBar(content: Text('Invalid credentials')),
                           );
                       }
                     }
-              })
+                  })
             ]),
           ),
         ));
