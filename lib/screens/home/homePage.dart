@@ -19,7 +19,11 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MyQuitBuddy'),
+        title: const Text('MyQuitBuddy',
+        style: TextStyle(
+          color: Color(0xFF007F9F),
+          fontWeight: FontWeight.bold,
+        ),),
       ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -27,7 +31,7 @@ class HomePageState extends State<HomePage> {
             selectedIndex = index;
           });
         },
-        indicatorColor: Color.fromARGB(255, 97, 189, 235),
+        indicatorColor: Color(0xFF007F9F),
         selectedIndex: selectedIndex,
         destinations: const <Widget>[
           NavigationDestination(
