@@ -71,21 +71,35 @@ class CircularIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipOval(
-      child: Material(
-        color: backgroundColor, // Button color
-        child: InkWell(
-          splashColor: Theme.of(context).primaryColorLight, // Splash color
-          onTap: onPressed,
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: Center(
-              child: icon,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ClipOval(
+          child: Material(
+            color: backgroundColor, // Button color
+            child: InkWell(
+              splashColor: Theme.of(context).primaryColorLight, // Splash color
+              onTap: onPressed,
+              child: SizedBox(
+                width: size,
+                height: size,
+                child: Center(
+                  child: icon,
+                ),
+              ),
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 8.0), // Add some spacing
+        Text(
+          'Press the button every time you smoke',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 16.0,
+          ),
+        ),
+      ],
     );
   }
 }

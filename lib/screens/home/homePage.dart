@@ -43,7 +43,7 @@ class HomePageState extends State<HomePage> {
       ),
       body: PageView(
         controller: pageController,
-        children: [ProfilePage(), StatisticsPage(), ProfilePage()],
+        children: [CigaretteTracker(), StatisticsPage(), ProfilePage()],
         onPageChanged: (index) => setState(() {
           selectedIndex = index;
         }),
