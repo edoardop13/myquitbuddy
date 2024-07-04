@@ -33,35 +33,53 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Center(
-              child: CircularIconButton(
-                onPressed: _incrementCounter,
-                icon: const Icon(
-                  Icons.smoking_rooms,
-                  size: 80,
-                  color: Colors.white,
+          // Non-scrollable part
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                CircularIconButton(
+                  onPressed: _incrementCounter,
+                  icon: const Icon(
+                    Icons.smoking_rooms,
+                    size: 80,
+                    color: Colors.white,
+                  ),
+                  size: 200,
+                  backgroundColor: _getColor(),
                 ),
-                size: 200,
-                backgroundColor: _getColor(),
-              ),
+                SizedBox(height: 16.0),
+                Text(
+                  'Press the button every time you smoke',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 16.0,
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                Text(
+                  'Cigarettes smoked today: $_cigaretteCount',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
             ),
           ),
+          // Scrollable part wrapped in a card
           Expanded(
-            flex: 2,
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Cigarettes smoked today: $_cigaretteCount',
-                      style: Theme.of(context).textTheme.titleLarge,  // Changed from headline6 to titleLarge
-                    ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SingleChildScrollView(
+                    child: CardsGrid(),
                   ),
-                  CardsGrid(),
-                ],
+                ),
               ),
             ),
           ),
@@ -104,15 +122,6 @@ class CircularIconButton extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(height: 16.0),
-        Text(
-          'Press the button every time you smoke',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 16.0,
           ),
         ),
       ],
