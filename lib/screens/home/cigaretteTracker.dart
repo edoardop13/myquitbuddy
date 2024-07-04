@@ -14,6 +14,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
     setState(() {
       if (_cigaretteCount < 100) _cigaretteCount++;
     });
+    _showSnackBar(_getMessage());
   }
 
   Color _getColor() {
@@ -26,6 +27,27 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
     } else {
       return Colors.black;
     }
+  }
+
+  String _getMessage() {
+    if (_cigaretteCount < 3) {
+      return "Try to smoke less!";
+    } else if (_cigaretteCount < 6) {
+      return "It's getting unhealthy!";
+    } else if (_cigaretteCount < 9) {
+      return "You should stop smoking!";
+    } else {
+      return "Please seek help to quit smoking!";
+    }
+  }
+
+  void _showSnackBar(String message) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 2),
+      backgroundColor: Colors.blueGrey,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
