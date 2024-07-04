@@ -27,7 +27,7 @@ class HomePageState extends State<HomePage> {
             selectedIndex = index;
           });
         },
-        indicatorColor: Colors.amber,
+        indicatorColor: Color.fromARGB(255, 97, 189, 235),
         selectedIndex: selectedIndex,
         destinations: const <Widget>[
           NavigationDestination(
