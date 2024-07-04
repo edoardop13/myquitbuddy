@@ -26,6 +26,17 @@ class HomePageState extends State<HomePage> {
           ),
         ),
       ),
+      body: PageView(
+        controller: pageController,
+        children: [
+          CigaretteTracker(),
+          StatisticsPage(),
+          ProfilePage(),
+        ],
+        onPageChanged: (index) => setState(() {
+          selectedIndex = index;
+        }),
+      ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
@@ -40,13 +51,6 @@ class HomePageState extends State<HomePage> {
           _buildNavigationDestination(Icons.calendar_month_outlined, 'Statistics', 1),
           _buildNavigationDestination(Icons.person, 'Profile', 2),
         ],
-      ),
-      body: PageView(
-        controller: pageController,
-        children: [CigaretteTracker(), StatisticsPage(), ProfilePage()],
-        onPageChanged: (index) => setState(() {
-          selectedIndex = index;
-        }),
       ),
     );
   }
