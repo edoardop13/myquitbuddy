@@ -20,32 +20,25 @@ class HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('MyQuitBuddy',
-        style: TextStyle(
-          color: Color(0xFF007F9F),
-          fontWeight: FontWeight.bold,
-        ),),
+          style: TextStyle(
+            color: Color(0xFF007F9F),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
             selectedIndex = index;
           });
+          pageController.jumpToPage(index);
         },
-        indicatorColor: Color(0xFF007F9F),
+        indicatorColor: Color.fromARGB(255, 0, 185, 231),
         selectedIndex: selectedIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.add_box_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            label: 'Statistics',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+        destinations: <Widget>[
+          _buildNavigationDestination(Icons.add_box_outlined, 'Home', 0),
+          _buildNavigationDestination(Icons.calendar_month_outlined, 'Statistics', 1),
+          _buildNavigationDestination(Icons.person, 'Profile', 2),
         ],
       ),
       body: PageView(
@@ -55,6 +48,16 @@ class HomePageState extends State<HomePage> {
           selectedIndex = index;
         }),
       ),
+    );
+  }
+
+  Widget _buildNavigationDestination(IconData icon, String label, int index) {
+    return NavigationDestination(
+      icon: Icon(
+        icon,
+        color: selectedIndex == index ? Colors.white : null,
+      ),
+      label: label,
     );
   }
 }
