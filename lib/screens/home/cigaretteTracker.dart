@@ -23,36 +23,52 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
       return Colors.orange;
     } else if (_cigaretteCount < 9) {
       return Colors.red;
-    } else
+    } else {
       return Colors.black;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            CircularIconButton(
-              onPressed: _incrementCounter,
-              icon: const Icon(
-                Icons.smoking_rooms,
-                size: 50,
-                color: Colors.white,
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Center(
+              child: CircularIconButton(
+                onPressed: _incrementCounter,
+                icon: const Icon(
+                  Icons.smoking_rooms,
+                  size: 80,
+                  color: Colors.white,
+                ),
+                size: 200,
+                backgroundColor: _getColor(),
               ),
-              size: 100,
-              backgroundColor: _getColor(),
             ),
-            const SizedBox(height: 15),
-            Expanded( // Use Expanded here
-              child: CardsGrid(), // Integrating the Grid here
+          ),
+          Expanded(
+            flex: 2,
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Cigarettes smoked today: $_cigaretteCount',
+                      style: Theme.of(context).textTheme.titleLarge,  // Changed from headline6 to titleLarge
+                    ),
+                  ),
+                  CardsGrid(),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  } //build
+  }
 }
 
 class CircularIconButton extends StatelessWidget {
@@ -76,9 +92,9 @@ class CircularIconButton extends StatelessWidget {
       children: [
         ClipOval(
           child: Material(
-            color: backgroundColor, // Button color
+            color: backgroundColor,
             child: InkWell(
-              splashColor: Theme.of(context).primaryColorLight, // Splash color
+              splashColor: Theme.of(context).primaryColorLight,
               onTap: onPressed,
               child: SizedBox(
                 width: size,
@@ -90,7 +106,7 @@ class CircularIconButton extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 8.0), // Add some spacing
+        const SizedBox(height: 16.0),
         Text(
           'Press the button every time you smoke',
           textAlign: TextAlign.center,
