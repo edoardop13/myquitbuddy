@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'cardsGrid.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
@@ -9,12 +10,20 @@ class CigaretteTracker extends StatefulWidget {
 
 class _CigaretteTrackerState extends State<CigaretteTracker> {
   int _cigaretteCount = 0;
+  int _previousCigaretteCount = 0;
 
   void _incrementCounter() {
     setState(() {
+      _previousCigaretteCount = _cigaretteCount;
       if (_cigaretteCount < 100) _cigaretteCount++;
     });
     _showSnackBar(_getMessage());
+  }
+
+  void _undoAction() {
+    setState(() {
+      _cigaretteCount = _previousCigaretteCount;
+    });
   }
 
   Color _getColor() {
@@ -43,9 +52,14 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
 
   void _showSnackBar(String message) {
     final snackBar = SnackBar(
-      content: Text(message),
-      duration: Duration(seconds: 2),
-      backgroundColor: Colors.blueGrey,
+      content: Text('Cigarette count incremented. $message'),
+      duration: Duration(seconds: 5),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: _undoAction,
+        textColor: Colors.blue,
+      ),
+      backgroundColor: Colors.grey[800],
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
