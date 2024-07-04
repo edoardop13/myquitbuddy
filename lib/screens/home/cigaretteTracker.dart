@@ -69,15 +69,25 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SingleChildScrollView(
-                    child: CardsGrid(),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10.0,
+                        spreadRadius: 2.0,
+                        offset: Offset(0.0, 5.0),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SingleChildScrollView(
+                      child: CardsGrid(),
+                    ),
                   ),
                 ),
               ),
