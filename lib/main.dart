@@ -7,6 +7,9 @@ import 'screens/profilePage.dart';
 import 'package:flutter/services.dart';
 import 'package:myquitbuddy/screens/home/homePage.dart';
 import 'package:myquitbuddy/screens/login/loginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,37 +17,44 @@ void main() {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
-  runApp(MyApp());
+  SharedPreferences.getInstance().then((prefs) {
+    var isDarkTheme = prefs.getBool("darkTheme") ?? false;
+    return runApp(
+      ChangeNotifierProvider<ThemeProvider>(
+        child: MyApp(),
+        create: (BuildContext context) {
+          return ThemeProvider(isDarkTheme);
+        },
+      ),
+    );
+  });
 }
 
 class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Quit Buddy',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blueGrey,
-          brightness: Brightness.light,
-        ),
-        primaryColor: Colors.blueGrey,
-      ),
-      home: FutureBuilder(
-        future: showLogin(),
-        builder:(context, snapshot) {
-          if (snapshot.hasData) {
-            final showLogin = snapshot.data as bool;
-            return showLogin
-                ? const LoginPage()
-                : const HomePage();
-          } else {
-            return Scaffold(
-                appBar: AppBar(title: const Text("MyQuitBuddy")),
-                body: const Loading());
-          }
-        },
-      ),
+    return Consumer<ThemeProvider>(
+      builder: (context, value, child) {
+        return MaterialApp(
+          title: 'My Quit Buddy',
+          theme: value.getTheme(),
+          home: FutureBuilder(
+            future: showLogin(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final showLogin = snapshot.data as bool;
+                //return showLogin ? const LoginPage() : const HomePage();
+                return false ? const LoginPage() : const HomePage(); // MODIFICATO PERCHè BACKEND DOWN
+              } else {
+                return Scaffold(
+                    appBar: AppBar(title: const Text("MyQuitBuddy")),
+                    body: const Loading());
+              }
+            },
+          ),
+        );
+      },
     );
   }
 

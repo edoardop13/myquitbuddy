@@ -1,6 +1,7 @@
 import 'package:babstrap_settings_screen/babstrap_settings_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myquitbuddy/theme.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -10,6 +11,12 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePage extends State<ProfilePage> {
   String username = "Nome Cognome";
   bool darkTheme = false;
+
+  // This is done to set the correct position for the theme switch selector
+  @override
+  void initState() {
+    darkTheme = Provider.of<ThemeProvider>(context, listen: false).isDarkSelected();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +28,7 @@ class _ProfilePage extends State<ProfilePage> {
           children: [
             BigUserCard(
               userName: "Nome Cognome",
-              userProfilePic: AssetImage("assets/logo.png"),
+              userProfilePic: const Image(image: AssetImage('icon/unipd.png'), width: 100,).image,
               backgroundColor: Colors.lightBlue,
             ),
             SettingsGroup(
@@ -38,10 +45,11 @@ class _ProfilePage extends State<ProfilePage> {
                   trailing: Switch.adaptive(
                     value: darkTheme,
                     onChanged: (value) {
+                      Provider.of<ThemeProvider>(context, listen: false).swapTheme();
+                      value = true;
                       setState(() {
-                        darkTheme == true
-                            ? darkTheme = false
-                            : darkTheme = true;
+                        if(darkTheme) darkTheme = false;
+                        else darkTheme = true;
                       });
                     },
                   ),
