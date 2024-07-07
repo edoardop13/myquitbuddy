@@ -19,29 +19,29 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   }
 
   Future<void> _loadData() async {
-    int count = await SharedPreferencesService.getCigaretteCount();
+    Map<String, int> counts = await SharedPreferencesService.getCigaretteCounts();
     String? lastDate = await SharedPreferencesService.getLastDate();
+    String today = DateTime.now().toIso8601String().substring(0, 10);
     
     setState(() {
-      if (lastDate == null || DateTime.now().toIso8601String().substring(0, 10) != lastDate) {
+      if (lastDate != today) {
         _cigaretteCount = 0;
-        _saveData();
+        SharedPreferencesService.resetCounts();
+        SharedPreferencesService.setLastDate(today);
       } else {
-        _cigaretteCount = count;
+        _cigaretteCount = counts.values.fold(0, (sum, count) => sum + count);
       }
     });
-  }
-
-  Future<void> _saveData() async {
-    await SharedPreferencesService.setCigaretteCount(_cigaretteCount);
-    await SharedPreferencesService.setLastDate(DateTime.now().toIso8601String().substring(0, 10));
   }
 
   void _incrementCounter() {
     setState(() {
       _previousCigaretteCount = _cigaretteCount;
-      if (_cigaretteCount < 100) _cigaretteCount++;
-      _saveData();
+      if (_cigaretteCount < 100) {
+        _cigaretteCount++;
+        int currentHour = DateTime.now().hour;
+        SharedPreferencesService.incrementCigaretteCount(currentHour);
+      }
     });
     _showSnackBar(_getMessage());
   }
@@ -49,7 +49,9 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   void _undoAction() {
     setState(() {
       _cigaretteCount = _previousCigaretteCount;
-      _saveData();
+      SharedPreferencesService.setCigaretteCounts({
+        DateTime.now().hour.toString().padLeft(2, '0'): _cigaretteCount
+      });
     });
   }
 
