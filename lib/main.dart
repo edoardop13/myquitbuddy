@@ -44,8 +44,7 @@ class MyApp extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final showLogin = snapshot.data as bool;
-                //return showLogin ? const LoginPage() : const HomePage();
-                return false ? const LoginPage() : const HomePage(); // MODIFICATO PERCHè BACKEND DOWN
+                return showLogin ? const LoginPage() : const HomePage();
               } else {
                 return Scaffold(
                     appBar: AppBar(title: const Text("MyQuitBuddy")),

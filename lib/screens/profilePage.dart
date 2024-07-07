@@ -1,5 +1,7 @@
 import 'package:babstrap_settings_screen/babstrap_settings_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:myquitbuddy/managers/tokenManager.dart';
+import 'package:myquitbuddy/screens/login/loginPage.dart';
 import 'package:myquitbuddy/theme.dart';
 import 'package:provider/provider.dart';
 
@@ -15,7 +17,8 @@ class _ProfilePage extends State<ProfilePage> {
   // This is done to set the correct position for the theme switch selector
   @override
   void initState() {
-    darkTheme = Provider.of<ThemeProvider>(context, listen: false).isDarkSelected();
+    darkTheme =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkSelected();
   }
 
   @override
@@ -28,7 +31,10 @@ class _ProfilePage extends State<ProfilePage> {
           children: [
             BigUserCard(
               userName: "Nome Cognome",
-              userProfilePic: const Image(image: AssetImage('icon/unipd.png'), width: 100,).image,
+              userProfilePic: const Image(
+                image: AssetImage('icon/unipd.png'),
+                width: 100,
+              ).image,
               backgroundColor: Colors.lightBlue,
             ),
             SettingsGroup(
@@ -45,11 +51,14 @@ class _ProfilePage extends State<ProfilePage> {
                   trailing: Switch.adaptive(
                     value: darkTheme,
                     onChanged: (value) {
-                      Provider.of<ThemeProvider>(context, listen: false).swapTheme();
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .swapTheme();
                       value = true;
                       setState(() {
-                        if(darkTheme) darkTheme = false;
-                        else darkTheme = true;
+                        if (darkTheme)
+                          darkTheme = false;
+                        else
+                          darkTheme = true;
                       });
                     },
                   ),
@@ -64,7 +73,10 @@ class _ProfilePage extends State<ProfilePage> {
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            const Image(image: AssetImage('icon/unipd.png'), width: 100,),
+                            const Image(
+                              image: AssetImage('icon/unipd.png'),
+                              width: 100,
+                            ),
                             const SizedBox(height: 10),
                             const Text('MyQuitBuddy',
                                 style: TextStyle(
@@ -96,9 +108,16 @@ class _ProfilePage extends State<ProfilePage> {
                   title: 'About',
                 ),
                 SettingsItem(
-                  onTap: () {},
+                  onTap: () {
+                    TokenManager.clearTokens();
+                    Navigator.of(context).popUntil(ModalRoute.withName('/login'));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()));
+                  },
                   icons: Icons.exit_to_app_rounded,
-                  title: "Sign Out",
+                  title: "Sign out",
                 ),
               ],
             ),
