@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'cardsGrid.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:myquitbuddy/utils/shared_preferences_service.dart';
 
 class CigaretteTracker extends StatefulWidget {
   @override
@@ -12,10 +12,36 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   int _cigaretteCount = 0;
   int _previousCigaretteCount = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    int count = await SharedPreferencesService.getCigaretteCount();
+    String? lastDate = await SharedPreferencesService.getLastDate();
+    
+    setState(() {
+      if (lastDate == null || DateTime.now().toIso8601String().substring(0, 10) != lastDate) {
+        _cigaretteCount = 0;
+        _saveData();
+      } else {
+        _cigaretteCount = count;
+      }
+    });
+  }
+
+  Future<void> _saveData() async {
+    await SharedPreferencesService.setCigaretteCount(_cigaretteCount);
+    await SharedPreferencesService.setLastDate(DateTime.now().toIso8601String().substring(0, 10));
+  }
+
   void _incrementCounter() {
     setState(() {
       _previousCigaretteCount = _cigaretteCount;
       if (_cigaretteCount < 100) _cigaretteCount++;
+      _saveData();
     });
     _showSnackBar(_getMessage());
   }
@@ -23,6 +49,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   void _undoAction() {
     setState(() {
       _cigaretteCount = _previousCigaretteCount;
+      _saveData();
     });
   }
 
