@@ -4,6 +4,8 @@ import 'package:myquitbuddy/managers/tokenManager.dart';
 import 'package:myquitbuddy/screens/login/loginPage.dart';
 import 'package:myquitbuddy/theme.dart';
 import 'package:provider/provider.dart';
+import 'package:confirm_dialog/confirm_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -11,14 +13,21 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePage extends State<ProfilePage> {
-  String username = "Nome Cognome";
+  String username = "Username";
   bool darkTheme = false;
 
   // This is done to set the correct position for the theme switch selector
   @override
   void initState() {
-    darkTheme =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkSelected();
+    darkTheme = Provider.of<ThemeProvider>(context, listen: false).isDarkSelected();
+    loadUsername();
+  }
+
+  Future<void> loadUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? 'Username';
+    });
   }
 
   @override
@@ -29,13 +38,11 @@ class _ProfilePage extends State<ProfilePage> {
         padding: const EdgeInsets.all(10),
         child: ListView(
           children: [
-            BigUserCard(
-              userName: "Nome Cognome",
-              userProfilePic: const Image(
-                image: AssetImage('icon/unipd.png'),
-                width: 100,
-              ).image,
-              backgroundColor: Colors.lightBlue,
+            SimpleUserCard(
+              userName: username,
+              userProfilePic: AssetImage('profile.jpg'),
+              imageRadius: 50,
+              textStyle: const TextStyle(fontSize: 40),
             ),
             SettingsGroup(
               items: [
@@ -51,14 +58,14 @@ class _ProfilePage extends State<ProfilePage> {
                   trailing: Switch.adaptive(
                     value: darkTheme,
                     onChanged: (value) {
-                      Provider.of<ThemeProvider>(context, listen: false)
-                          .swapTheme();
+                      Provider.of<ThemeProvider>(context, listen: false).swapTheme();
                       value = true;
                       setState(() {
-                        if (darkTheme)
+                        if (darkTheme) {
                           darkTheme = false;
-                        else
+                        } else {
                           darkTheme = true;
+                        }
                       });
                     },
                   ),
@@ -103,18 +110,27 @@ class _ProfilePage extends State<ProfilePage> {
                   ),
                   icons: Icons.info_rounded,
                   iconStyle: IconStyle(
-                    backgroundColor: Colors.purple,
+                    backgroundColor: Colors.lightBlue,
                   ),
                   title: 'About',
                 ),
                 SettingsItem(
-                  onTap: () {
-                    TokenManager.clearTokens();
-                    Navigator.of(context).popUntil(ModalRoute.withName('/login'));
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()));
+                  onTap: () async {
+                    if (await confirm(
+                      context,
+                      title: const Text('Sign out'),
+                      content: const Text('Are you sure you want to sign out?'),
+                      textOK: const Text('Sign out'),
+                      textCancel: const Text('Cancel'),
+                    )) {
+                      TokenManager.clearTokens();
+                      Navigator.of(context)
+                          .popUntil(ModalRoute.withName('/login'));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()));
+                    }
                   },
                   icons: Icons.exit_to_app_rounded,
                   title: "Sign out",
