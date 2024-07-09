@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:myquitbuddy/utils/indexed_db_service.dart';
+import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 
 class StatisticsPage extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class StatisticsPage extends StatefulWidget {
 
 class _StatisticsPageState extends State<StatisticsPage> {
   Map<String, int> _cigaretteCounts = {};
+  Map<DateTime, int> _heatmapData = {};
 
   @override
   void initState() {
@@ -19,8 +21,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Future<void> _loadData() async {
     String today = DateTime.now().toIso8601String().substring(0, 10);
     Map<String, int> counts = await IndexedDBService.getCigaretteCounts(today);
+    Map<DateTime, int> heatmapData = await IndexedDBService.getWeeklyData();
     setState(() {
       _cigaretteCounts = counts;
+      _heatmapData = heatmapData;
     });
   }
 
@@ -28,7 +32,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Daily Statistics'),
+        title: Text(
+          'Statistics',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -99,6 +109,41 @@ class _StatisticsPageState extends State<StatisticsPage> {
               Text(
                 'Total cigarettes today: ${_cigaretteCounts.values.fold(0, (sum, count) => sum + count)}',
                 style: Theme.of(context).textTheme.titleMedium,
+              ),
+              SizedBox(height: 32.0),
+              Text(
+                'Smoking Heatmap',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              SizedBox(height: 16.0),
+              Center(
+                child: HeatMap(
+                  datasets: _heatmapData,
+                  startDate: DateTime.now().subtract(Duration(days: 30)),
+                  endDate: DateTime.now(),
+                  colorMode: ColorMode.color,
+                  defaultColor: Colors.white,
+                  textColor: Colors.black,
+                  showColorTip: false,
+                  showText: true,
+                  scrollable: true,
+                  size: 30,
+                  colorsets: {
+                    1: Colors.red[50]!,
+                    3: Colors.red[200]!,
+                    5: Colors.red[400]!,
+                    7: Colors.red[600]!,
+                    9: Colors.red[800]!,
+                  },
+                ),
+              ),
+              SizedBox(height: 16.0),
+              Center(
+                child: Text(
+                  'Color intensity indicates the number of cigarettes smoked.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),

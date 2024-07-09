@@ -97,6 +97,38 @@ class IndexedDBService {
     }
   }
 
+  static Future<Map<DateTime, int>> getWeeklyData() async {
+    final db = await _openDatabase();
+    final txn = db.transaction(_storeName, 'readonly');
+    final store = txn.objectStore(_storeName);
+
+    final endDate = DateTime.now();
+    final startDate = endDate.subtract(Duration(days: 30)); // Fetch last 30 days
+
+    final range = KeyRange.bound(
+      startDate.toIso8601String().substring(0, 10),
+      endDate.toIso8601String().substring(0, 10),
+    );
+
+    Map<DateTime, int> weeklyData = {};
+
+    try {
+      await for (final cursor in store.openCursor(range: range)) {
+        final data = cursor.value as Map<String, dynamic>;
+        final date = DateTime.parse(data['date'] as String);
+        final counts = Map<String, int>.from(data['counts'] as Map);
+        final totalCount = counts.values.fold(0, (sum, count) => sum + count);
+        weeklyData[date] = totalCount;
+        cursor.next();
+      }
+    } finally {
+      await txn.completed;
+      db.close();
+    }
+
+    return weeklyData;
+  }
+
   static Future<List<Map<String, dynamic>>> getWeeklyCounts() async {
     final db = await _openDatabase();
     final txn = db.transaction(_storeName, 'readonly');
