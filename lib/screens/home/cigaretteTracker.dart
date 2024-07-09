@@ -49,8 +49,11 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   }
 
   Color _getColor() {
-    if (_cigaretteCount < 3) {
+    if (_cigaretteCount < 1) {
       return Colors.green;
+    } 
+    else if (_cigaretteCount < 3) {
+      return const Color.fromARGB(255, 253, 230, 25);
     } else if (_cigaretteCount < 6) {
       return Colors.orange;
     } else if (_cigaretteCount < 9) {
@@ -116,10 +119,23 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                   ),
                 ),
                 SizedBox(height: 16.0),
-                Text(
-                  'Cigarettes smoked today: $_cigaretteCount',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                _cigaretteCount == 0
+                    ? Text(
+                        'Still no cigarettes today! Keep it up',
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
+                      )
+                    : RichText(
+                        text: TextSpan(
+                          text: 'Cigarettes smoked today: ',
+                          style: Theme.of(context).textTheme.titleLarge,
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: '$_cigaretteCount',
+                              style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
               ],
             ),
           ),
