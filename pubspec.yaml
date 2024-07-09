@@ -48,6 +48,8 @@ dependencies:
   dio_cache_interceptor: ^3.5.0
   jwt_decoder: ^2.0.1
   flutter_secure_storage: ^9.2.2
+  idb_shim: ^2.5.0+1
+  flutter_heatmap_calendar: ^1.0.5
 
 dev_dependencies:
   flutter_test:

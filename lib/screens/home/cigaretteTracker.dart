@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'cardsGrid.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:myquitbuddy/utils/indexed_db_service.dart';
 
 class CigaretteTracker extends StatefulWidget {
   @override
@@ -10,20 +10,42 @@ class CigaretteTracker extends StatefulWidget {
 
 class _CigaretteTrackerState extends State<CigaretteTracker> {
   int _cigaretteCount = 0;
-  int _previousCigaretteCount = 0;
+  DateTime? _lastIncrementTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    String today = DateTime.now().toIso8601String().substring(0, 10);
+    Map<String, int> counts = await IndexedDBService.getCigaretteCounts(today);
+    
+    setState(() {
+      _cigaretteCount = counts.values.fold(0, (sum, count) => sum + count);
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
-      _previousCigaretteCount = _cigaretteCount;
-      if (_cigaretteCount < 100) _cigaretteCount++;
+      if (_cigaretteCount < 100) {
+        _cigaretteCount++;
+        _lastIncrementTime = DateTime.now();
+        IndexedDBService.incrementCigaretteCount(_lastIncrementTime!);
+      }
     });
     _showSnackBar(_getMessage());
   }
 
   void _undoAction() {
-    setState(() {
-      _cigaretteCount = _previousCigaretteCount;
-    });
+    if (_lastIncrementTime != null) {
+      setState(() {
+        _cigaretteCount--;
+        IndexedDBService.decrementCigaretteCount(_lastIncrementTime!);
+        _lastIncrementTime = null;
+      });
+    }
   }
 
   Color _getColor() {
