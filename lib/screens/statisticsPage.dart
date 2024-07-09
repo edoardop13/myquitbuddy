@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:myquitbuddy/utils/shared_preferences_service.dart';
+import 'package:myquitbuddy/utils/indexed_db_service.dart';
 
 class StatisticsPage extends StatefulWidget {
   @override
@@ -17,15 +17,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   Future<void> _loadData() async {
-    String? lastDate = await SharedPreferencesService.getLastDate();
     String today = DateTime.now().toIso8601String().substring(0, 10);
-
-    if (lastDate != today) {
-      await SharedPreferencesService.resetCounts();
-      await SharedPreferencesService.setLastDate(today);
-    }
-
-    Map<String, int> counts = await SharedPreferencesService.getCigaretteCounts();
+    Map<String, int> counts = await IndexedDBService.getCigaretteCounts(today);
     setState(() {
       _cigaretteCounts = counts;
     });
@@ -35,7 +28,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Statistics'),
+        title: Text('Daily Statistics'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -44,30 +37,53 @@ class _StatisticsPageState extends State<StatisticsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Cigarettes Smoked Throughout the Day',
+                'Cigarettes Smoked Today',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               SizedBox(height: 16.0),
               SizedBox(
-                height: 200.0,
+                height: 300.0,
                 child: BarChart(
                   BarChartData(
                     alignment: BarChartAlignment.spaceAround,
+                    maxY: _getMaxY(),
                     barGroups: _getBarGroups(),
                     titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                        ),
-                      ),
+                      show: true,
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (double value, TitleMeta meta) {
-                            return Text(value.toInt().toString());
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                value.toInt().toString(),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            );
                           },
                           reservedSize: 30,
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 30,
+                          interval: 1,
+                          getTitlesWidget: (double value, TitleMeta meta) {
+                            return Text(
+                              value.toInt().toString(),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -75,8 +91,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       show: true,
                       border: Border.all(color: Colors.grey),
                     ),
+                    gridData: FlGridData(show: false),
                   ),
                 ),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Total cigarettes today: ${_cigaretteCounts.values.fold(0, (sum, count) => sum + count)}',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ],
           ),
@@ -94,9 +116,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
           BarChartRodData(
             toY: (_cigaretteCounts[hourKey] ?? 0).toDouble(),
             color: Colors.blue,
+            width: 16,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
           ),
         ],
       );
     });
+  }
+
+  double _getMaxY() {
+    if (_cigaretteCounts.isEmpty) return 5;
+    return _cigaretteCounts.values.reduce((max, value) => max > value ? max : value).toDouble() + 1;
   }
 }
