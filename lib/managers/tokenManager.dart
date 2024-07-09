@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:myquitbuddy/models/patient.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TokenManager {
   static const _accessToken = 'access_token';
@@ -52,6 +53,8 @@ class TokenManager {
 
   static Future<void> saveUsername(Patient patient) async {
     await _storage.write(key: _username, value: patient.username);
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    sp.setString('username', patient.displayName);
   }
 
   static Future<String?> getUsername() => _storage.read(key: _username);
