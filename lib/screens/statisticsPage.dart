@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:myquitbuddy/utils/indexed_db_service.dart';
+import 'package:myquitbuddy/utils/sqlite_service.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 
 class StatisticsPage extends StatefulWidget {
@@ -11,6 +11,8 @@ class StatisticsPage extends StatefulWidget {
 class _StatisticsPageState extends State<StatisticsPage> {
   Map<String, int> _cigaretteCounts = {};
   Map<DateTime, int> _heatmapData = {};
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   @override
   void initState() {
@@ -19,13 +21,27 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   Future<void> _loadData() async {
-    String today = DateTime.now().toIso8601String().substring(0, 10);
-    Map<String, int> counts = await IndexedDBService.getCigaretteCounts(today);
-    Map<DateTime, int> heatmapData = await IndexedDBService.getWeeklyData();
     setState(() {
-      _cigaretteCounts = counts;
-      _heatmapData = heatmapData;
+      _isLoading = true;
+      _errorMessage = '';
     });
+
+    try {
+      String today = DateTime.now().toIso8601String().substring(0, 10);
+      Map<String, int> counts = await SQLiteService.getCigaretteCounts(today);
+      Map<DateTime, int> heatmapData = await SQLiteService.getWeeklyData();
+
+      setState(() {
+        _cigaretteCounts = counts;
+        _heatmapData = heatmapData;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading data: $e';
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -40,7 +56,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+          ? Center(child: Text(_errorMessage))
+          : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -53,7 +73,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
               SizedBox(height: 16.0),
               SizedBox(
                 height: 300.0,
-                child: BarChart(
+                child: _cigaretteCounts.isEmpty
+                    ? Center(child: Text('No data for today'))
+                    : BarChart(
                   BarChartData(
                     alignment: BarChartAlignment.spaceAround,
                     maxY: _getMaxY(),
@@ -117,7 +139,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
               ),
               SizedBox(height: 16.0),
               Center(
-                child: HeatMap(
+                child: _heatmapData.isEmpty
+                    ? Text('No data for heatmap')
+                    : HeatMap(
                   datasets: _heatmapData,
                   startDate: DateTime.now().subtract(Duration(days: 30)),
                   endDate: DateTime.now(),

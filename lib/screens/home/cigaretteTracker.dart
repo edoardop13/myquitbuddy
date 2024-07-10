@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'cardsGrid.dart';
-import 'package:myquitbuddy/utils/indexed_db_service.dart';
-import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
+import 'package:myquitbuddy/utils/sqlite_service.dart';
 
 class CigaretteTracker extends StatefulWidget {
   @override
@@ -21,30 +20,29 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
 
   Future<void> _loadData() async {
     String today = DateTime.now().toIso8601String().substring(0, 10);
-    Map<String, int> counts = await IndexedDBService.getCigaretteCounts(today);
-    
+    Map<String, int> counts = await SQLiteService.getCigaretteCounts(today);
+
     setState(() {
       _cigaretteCount = counts.values.fold(0, (sum, count) => sum + count);
     });
   }
 
-  Future<void> _incrementCounter() async {
+  void _incrementCounter() {
     setState(() {
       if (_cigaretteCount < 100) {
         _cigaretteCount++;
         _lastIncrementTime = DateTime.now();
-        IndexedDBService.incrementCigaretteCount(_lastIncrementTime!);
+        SQLiteService.incrementCigaretteCount(_lastIncrementTime!);
       }
     });
     _showSnackBar(_getMessage());
-    await PatientRemoteRepository.getHeartrate(DateTime.now());
   }
 
   void _undoAction() {
     if (_lastIncrementTime != null) {
       setState(() {
         _cigaretteCount--;
-        IndexedDBService.decrementCigaretteCount(_lastIncrementTime!);
+        SQLiteService.decrementCigaretteCount(_lastIncrementTime!);
         _lastIncrementTime = null;
       });
     }
@@ -53,7 +51,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   Color _getColor() {
     if (_cigaretteCount < 1) {
       return Colors.green;
-    } 
+    }
     else if (_cigaretteCount < 3) {
       return const Color.fromARGB(255, 253, 230, 25);
     } else if (_cigaretteCount < 6) {
@@ -123,21 +121,21 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                 SizedBox(height: 16.0),
                 _cigaretteCount == 0
                     ? Text(
-                        'Still no cigarettes today! Keep it up',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
-                      )
+                  'Still no cigarettes today! Keep it up',
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
+                )
                     : RichText(
-                        text: TextSpan(
-                          text: 'Cigarettes smoked today: ',
-                          style: Theme.of(context).textTheme.titleLarge,
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: '$_cigaretteCount',
-                              style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
+                  text: TextSpan(
+                    text: 'Cigarettes smoked today: ',
+                    style: Theme.of(context).textTheme.titleLarge,
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: '$_cigaretteCount',
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
                       ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

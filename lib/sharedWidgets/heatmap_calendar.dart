@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
-import 'package:myquitbuddy/utils/indexed_db_service.dart';
+import 'package:myquitbuddy/utils/sqlite_service.dart';
 
 class HeatmapCalendarWidget extends StatefulWidget {
   @override
@@ -17,7 +17,7 @@ class _HeatmapCalendarWidgetState extends State<HeatmapCalendarWidget> {
   }
 
   Future<void> _loadData() async {
-    final data = await IndexedDBService.getWeeklyData();
+    final data = await SQLiteService.getWeeklyData();
     setState(() {
       _heatmapData = data;
     });
