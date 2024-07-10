@@ -186,7 +186,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             toY: (_cigaretteCounts[hourKey] ?? 0).toDouble(),
             color: Colors.blue,
             width: 16,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           ),
         ],
       );

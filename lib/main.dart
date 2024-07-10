@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:myquitbuddy/managers/tokenManager.dart';
 import 'package:myquitbuddy/sharedWidgets/loading.dart';
 import 'package:myquitbuddy/utils/appInterceptor.dart';
-import 'screens/home/cigaretteTracker.dart';
-import 'screens/profilePage.dart';
 import 'package:flutter/services.dart';
 import 'package:myquitbuddy/screens/home/homePage.dart';
 import 'package:myquitbuddy/screens/login/loginPage.dart';

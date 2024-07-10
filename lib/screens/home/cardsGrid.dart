@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myquitbuddy/models/heartrate.dart';
+import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
 
 class CardsGrid extends StatelessWidget {
   @override
@@ -10,13 +12,13 @@ class CardsGrid extends StatelessWidget {
           crossAxisCount: 2, // 2 columns
           mainAxisSpacing: 8.0,
           crossAxisSpacing: 8.0,
-          childAspectRatio: 3 / 2, // Aspect ratio of the cards
+          childAspectRatio: 2 / 1.8, // Aspect ratio of the cards
         ),
-        itemCount: 8, // 2 columns * 4 rows
+        itemCount: 4, // 2 columns * 4 rows
         itemBuilder: (BuildContext context, int index) {
           return CustomCard(
-            icon: Icons.favorite,
-            text: 'Card $index',
+            // icon: Icons.favorite,
+            // text: 'Card $index',
           );
         },
         shrinkWrap: true, // To limit GridView height
@@ -26,15 +28,50 @@ class CardsGrid extends StatelessWidget {
   }
 }
 
-class CustomCard extends StatelessWidget {
-  final IconData icon;
-  final String text;
+class CustomCard extends StatefulWidget {
+  @override
+  _CustomCardState createState() => _CustomCardState();
+}
 
-  const CustomCard({
-    Key? key,
-    required this.icon,
-    required this.text,
-  }) : super(key: key);
+class _CustomCardState extends State<CustomCard> {
+  
+  final PatientRemoteRepository _apiService = PatientRemoteRepository();
+  List<Heartrate> _measures = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchHeartRate();
+  }
+
+  Future<void> _fetchHeartRate() async {
+    try {
+      print("fetching heartrate");
+      final measures = await PatientRemoteRepository.getHeartrate(DateTime(2024));
+      print(measures);
+      setState(() {
+        _measures = measures ?? [];
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load posts')),
+      );
+    }
+  }
+
+  // final IconData icon;
+  // final String text;
+
+  // const CustomCard({
+  //   Key? key,
+  //   required this.icon,
+  //   required this.text,
+  // }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +87,13 @@ class CustomCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              icon,
+              Icons.favorite,
               size: 48.0,
               color: Theme.of(context).primaryColor,
             ),
             const SizedBox(height: 16.0),
             Text(
-              text,
+              _measures.fold(0, (sum, item) => sum + item.value).toString(),
               style: const TextStyle(
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,

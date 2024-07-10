@@ -72,21 +72,15 @@ class PatientRemoteRepository {
   }
 
   static Future<List<Heartrate>?> getHeartrate(DateTime date) async {
-    print("Fetching heart rate data");
     var newFormat = DateFormat('y-MM-dd');
     final dateFormatted = newFormat.format(date);
     final patientUsername = await TokenManager.getUsername();
 
     final url =
         'data/v1/heart_rate/patients/$patientUsername/daterange/start_date/$dateFormatted/end_date/$dateFormatted';
-    print("Requesting URL: $url");
 
     try {
       final response = await _client.get(url);
-
-      print("Response status code: ${response.statusCode}");
-      print("Response headers: ${response.headers}");
-      print("Response body: ${response.data}");
 
       if (response.statusCode != HttpStatus.ok) {
         print("Error: HTTP ${response.statusCode}");
@@ -101,9 +95,7 @@ class PatientRemoteRepository {
     } catch (error) {
       print("Error fetching heart rate data: $error");
       if (error is DioException) {
-        print("DioError type: ${error.type}");
-        print("DioError message: ${error.message}");
-        print("DioError response: ${error.response}");
+        print("DioError erro: ${error}");
       }
       return null;
     }

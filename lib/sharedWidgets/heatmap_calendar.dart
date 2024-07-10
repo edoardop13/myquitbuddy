@@ -27,9 +27,9 @@ class _HeatmapCalendarWidgetState extends State<HeatmapCalendarWidget> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      margin: EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -37,7 +37,7 @@ class _HeatmapCalendarWidgetState extends State<HeatmapCalendarWidget> {
               'Smoking Heatmap',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             HeatMap(
               datasets: _heatmapData,
               startDate: DateTime.now().subtract(Duration(days: 30)),
@@ -57,7 +57,7 @@ class _HeatmapCalendarWidgetState extends State<HeatmapCalendarWidget> {
                 9: Colors.green[900]!,
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Color intensity indicates the number of cigarettes smoked.',
               style: Theme.of(context).textTheme.bodySmall,
