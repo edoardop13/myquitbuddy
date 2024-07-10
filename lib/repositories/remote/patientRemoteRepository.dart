@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:myquitbuddy/managers/tokenManager.dart';
 import 'package:myquitbuddy/models/distance.dart';
+import 'package:myquitbuddy/models/heartrate.dart';
 import 'package:myquitbuddy/models/patient.dart';
 import 'package:myquitbuddy/models/steps.dart';
 import 'package:myquitbuddy/utils/appInterceptor.dart';
@@ -65,6 +66,26 @@ class PatientRemoteRepository {
       return data
           .cast<Map<String, dynamic>>()
           .map<Distance>((json) => Distance.fromJson(dateFormatted, json))
+          .toList();
+    });
+  }
+
+    static Future<List<Heartrate>?> getHeartrate(DateTime date) async {
+      print("here");
+    var newFormat = DateFormat('y-MM-dd');
+    final dateFormatted = newFormat.format(date);
+    final patientUsername = await TokenManager.getUsername();
+  
+    return _client
+        .get('data/v1/heart_rate/patients/$patientUsername/daterange/start_date/$dateFormatted/end_date/$dateFormatted')
+        .then((value) {
+      if (value.statusCode != HttpStatus.ok) {
+        return null;
+      }
+      final data = value.data['data']['data'];
+      return data
+          .cast<Map<String, dynamic>>()
+          .map<Heartrate>((json) => Heartrate.fromJson(dateFormatted, json))
           .toList();
     });
   }

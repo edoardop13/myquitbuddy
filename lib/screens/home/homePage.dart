@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myquitbuddy/screens/home/cigaretteTracker.dart';
 import 'package:myquitbuddy/screens/profilePage.dart';
@@ -44,7 +43,7 @@ class HomePageState extends State<HomePage> {
           });
           pageController.jumpToPage(index);
         },
-        indicatorColor: Color.fromARGB(255, 0, 185, 231),
+        indicatorColor: const Color.fromARGB(255, 0, 185, 231),
         selectedIndex: selectedIndex,
         destinations: <Widget>[
           _buildNavigationDestination(Icons.add_box_outlined, 'Home', 0),
