@@ -48,7 +48,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Statistics',
           style: TextStyle(
             color: Colors.black,
@@ -57,7 +57,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _errorMessage.isNotEmpty
           ? Center(child: Text(_errorMessage))
           : SingleChildScrollView(
@@ -70,11 +70,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 'Cigarettes Smoked Today',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               SizedBox(
                 height: 300.0,
                 child: _cigaretteCounts.isEmpty
-                    ? Center(child: Text('No data for today'))
+                    ? const Center(child: Text('No data for today'))
                     : BarChart(
                   BarChartData(
                     alignment: BarChartAlignment.spaceAround,
@@ -90,7 +90,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 value.toInt().toString(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.grey,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 10,
@@ -109,7 +109,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           getTitlesWidget: (double value, TitleMeta meta) {
                             return Text(
                               value.toInt().toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.grey,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 10,
@@ -123,24 +123,24 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       show: true,
                       border: Border.all(color: Colors.grey),
                     ),
-                    gridData: FlGridData(show: false),
+                    gridData: const FlGridData(show: false),
                   ),
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Text(
                 'Total cigarettes today: ${_cigaretteCounts.values.fold(0, (sum, count) => sum + count)}',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              SizedBox(height: 32.0),
+              const SizedBox(height: 32.0),
               Text(
                 'Smoking Heatmap',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Center(
                 child: _heatmapData.isEmpty
-                    ? Text('No data for heatmap')
+                    ? const Text('No data for heatmap')
                     : HeatMap(
                   datasets: _heatmapData,
                   startDate: DateTime.now().subtract(Duration(days: 30)),
@@ -161,7 +161,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   },
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Center(
                 child: Text(
                   'Color intensity indicates the number of cigarettes smoked.',
