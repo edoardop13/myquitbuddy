@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart'; // Add this line to import the 'dio' package
 import 'package:myquitbuddy/managers/tokenManager.dart';
 import 'package:myquitbuddy/models/distance.dart';
 import 'package:myquitbuddy/models/heartrate.dart';
@@ -13,7 +14,7 @@ class PatientRemoteRepository {
   static const _patientsEndpoint = 'study/v1/patients/';
 
   static final _client = AppInterceptor().dio;
-  
+
   static Future<List<Patient>?> getPatients() {
     return _client.get(_patientsEndpoint).then((value) async {
       if (value.statusCode != HttpStatus.ok) {
@@ -70,23 +71,41 @@ class PatientRemoteRepository {
     });
   }
 
-    static Future<List<Heartrate>?> getHeartrate(DateTime date) async {
-      print("here");
+  static Future<List<Heartrate>?> getHeartrate(DateTime date) async {
+    print("Fetching heart rate data");
     var newFormat = DateFormat('y-MM-dd');
     final dateFormatted = newFormat.format(date);
     final patientUsername = await TokenManager.getUsername();
-  
-    return _client
-        .get('data/v1/heart_rate/patients/$patientUsername/daterange/start_date/$dateFormatted/end_date/$dateFormatted')
-        .then((value) {
-      if (value.statusCode != HttpStatus.ok) {
+
+    final url =
+        'data/v1/heart_rate/patients/$patientUsername/daterange/start_date/$dateFormatted/end_date/$dateFormatted';
+    print("Requesting URL: $url");
+
+    try {
+      final response = await _client.get(url);
+
+      print("Response status code: ${response.statusCode}");
+      print("Response headers: ${response.headers}");
+      print("Response body: ${response.data}");
+
+      if (response.statusCode != HttpStatus.ok) {
+        print("Error: HTTP ${response.statusCode}");
         return null;
       }
-      final data = value.data['data']['data'];
+
+      final data = response.data['data']['data'];
       return data
           .cast<Map<String, dynamic>>()
           .map<Heartrate>((json) => Heartrate.fromJson(dateFormatted, json))
           .toList();
-    });
+    } catch (error) {
+      print("Error fetching heart rate data: $error");
+      if (error is DioException) {
+        print("DioError type: ${error.type}");
+        print("DioError message: ${error.message}");
+        print("DioError response: ${error.response}");
+      }
+      return null;
+    }
   }
 }

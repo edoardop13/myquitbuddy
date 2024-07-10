@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'cardsGrid.dart';
 import 'package:myquitbuddy/utils/indexed_db_service.dart';
+import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
 
 class CigaretteTracker extends StatefulWidget {
   @override
@@ -27,7 +28,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
     });
   }
 
-  void _incrementCounter() {
+  Future<void> _incrementCounter() async {
     setState(() {
       if (_cigaretteCount < 100) {
         _cigaretteCount++;
@@ -36,6 +37,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
       }
     });
     _showSnackBar(_getMessage());
+    await PatientRemoteRepository.getHeartrate(DateTime.now());
   }
 
   void _undoAction() {
