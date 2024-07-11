@@ -14,7 +14,7 @@ class CardsGrid extends StatelessWidget {
           crossAxisSpacing: 8.0,
           childAspectRatio: 2 / 1.8, // Aspect ratio of the cards
         ),
-        itemCount: 4, // 2 columns * 4 rows
+        itemCount: 1, // 2 columns * 4 rows
         itemBuilder: (BuildContext context, int index) {
           return CustomCard(
             // icon: Icons.favorite,
@@ -36,7 +36,7 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   
   final PatientRemoteRepository _apiService = PatientRemoteRepository();
-  List<Heartrate> _measures = [];
+  double _avgHeartRate = 0.0;
   bool _isLoading = true;
 
   @override
@@ -48,10 +48,14 @@ class _CustomCardState extends State<CustomCard> {
   Future<void> _fetchHeartRate() async {
     try {
       print("fetching heartrate");
-      final measures = await PatientRemoteRepository.getHeartrate(DateTime(2024));
+      // Get the current date
+      final endDate = DateTime.now().subtract(const Duration(days: 1));
+      // Get the date 7 days ago
+      final startDate = endDate.subtract(const Duration(days: 1));
+      final measures = await PatientRemoteRepository.getHeartRateAverages(startDate, endDate);
       print(measures);
       setState(() {
-        _measures = measures ?? [];
+        _avgHeartRate = 0;
         _isLoading = false;
       });
     } catch (e) {
@@ -59,7 +63,7 @@ class _CustomCardState extends State<CustomCard> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load posts')),
+        const SnackBar(content: Text('Failed to load posts')),
       );
     }
   }
@@ -93,7 +97,7 @@ class _CustomCardState extends State<CustomCard> {
             ),
             const SizedBox(height: 16.0),
             Text(
-              _measures.fold(0, (sum, item) => sum + item.value).toString(),
+              "text",
               style: const TextStyle(
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,

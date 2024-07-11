@@ -1,19 +1,33 @@
 import 'package:intl/intl.dart';
 
-class Heartrate {
-  final DateTime time;
-  final int value;
+class DailyHeartRate {
+  final String date;
+  final List<HeartRateRecord> data;
 
-  const Heartrate({required this.time, required this.value});
+  DailyHeartRate({required this.date, required this.data});
 
-  factory Heartrate.fromJson(String date, Map<String, dynamic> json) {
-    return Heartrate(
-        time: DateFormat('yyyy-MM-dd HH:mm:ss').parse('$date ${json["time"]}'),
-        value: json["value"]);
+  factory DailyHeartRate.fromJson(Map<String, dynamic> json) {
+    return DailyHeartRate(
+      date: json['date'] as String,
+      data: (json['data'] as List<dynamic>)
+          .map((e) => HeartRateRecord.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
   }
+}
 
-  @override
-  String toString() {
-    return 'Heartrate(time: $time, value: $value)';
+class HeartRateRecord {
+  final String? time;
+  final int? value;
+  final int? confidence;
+
+  HeartRateRecord({this.time, this.value, this.confidence});
+
+  factory HeartRateRecord.fromJson(Map<String, dynamic> json) {
+    return HeartRateRecord(
+      time: json['time'] as String?,
+      value: json['value'] as int?,
+      confidence: json['confidence'] as int?,
+    );
   }
 }

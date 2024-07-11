@@ -71,13 +71,13 @@ class PatientRemoteRepository {
     });
   }
 
-  static Future<List<Heartrate>?> getHeartrate(DateTime date) async {
+  static Future<List<Map<String, dynamic>>?> getHeartRateAverages(DateTime startDate, DateTime endDate) async {
     var newFormat = DateFormat('y-MM-dd');
-    final dateFormatted = newFormat.format(date);
+    final startDateFormatted = newFormat.format(startDate);
+    final endDateFormatted = newFormat.format(endDate);
     final patientUsername = await TokenManager.getUsername();
 
-    final url =
-        'data/v1/heart_rate/patients/$patientUsername/daterange/start_date/$dateFormatted/end_date/$dateFormatted';
+    final url = 'data/v1/heart_rate/patients/$patientUsername/daterange/start_date/$startDateFormatted/end_date/$endDateFormatted';
 
     try {
       final response = await _client.get(url);
@@ -87,15 +87,64 @@ class PatientRemoteRepository {
         return null;
       }
 
-      final data = response.data['data']['data'];
-      return data
-          .cast<Map<String, dynamic>>()
-          .map<Heartrate>((json) => Heartrate.fromJson(dateFormatted, json))
-          .toList();
+      // Print the raw response data for debugging
+      print("Raw response data: ${response.data}");
+
+      // Check if response.data is a Map
+      if (response.data is! Map<String, dynamic>) {
+        print("Error: Expected a Map, but got ${response.data.runtimeType}");
+        return null;
+      }
+
+      // Parse the data
+      Map<String, dynamic> responseMap = response.data;
+      if (responseMap.containsKey('data') && responseMap['data'] is List) {
+        List<dynamic> dataList = responseMap['data'];
+        
+        // Group the data by date
+        Map<String, List<HeartRateRecord>> groupedByDate = {};
+        for (var item in dataList) {
+          if (item is Map<String, dynamic>) {
+            String? date = item['date'] as String?;
+            if (date != null) {
+              if (!groupedByDate.containsKey(date)) {
+                groupedByDate[date] = [];
+              }
+              groupedByDate[date]!.add(HeartRateRecord.fromJson(item));
+            }
+          }
+        }
+
+        // Calculate average for each date
+        List<Map<String, dynamic>> averages = [];
+        groupedByDate.forEach((date, records) {
+          if (records.isNotEmpty) {
+            List<int> validValues = records
+                .map((r) => r.value)
+                .whereType<int>()
+                .toList();
+            if (validValues.isNotEmpty) {
+              double average = validValues.reduce((a, b) => a + b) / validValues.length;
+              averages.add({
+                'date': date,
+                'average_heart_rate': average,
+                'record_count': validValues.length
+              });
+            }
+          }
+        });
+
+        return averages;
+      } else {
+        print("Error: 'data' key not found or not a List");
+        return null;
+      }
     } catch (error) {
       print("Error fetching heart rate data: $error");
       if (error is DioException) {
-        print("DioError erro: ${error}");
+        print("DioError details: ${error.message}");
+        print("DioError type: ${error.type}");
+        print("DioError stackTrace: ${error.stackTrace}");
       }
       return null;
     }
