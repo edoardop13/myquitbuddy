@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:myquitbuddy/models/heartrate.dart';
 import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
+import 'package:myquitbuddy/screens/home/healthStatsPage.dart';
 
 class CardsGrid extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Wrap(
-        spacing: 8.0, // gap between adjacent chips
-        runSpacing: 4.0, // gap between lines
-        children: <Widget>[
-          CustomHRCard(),
-          CustomDistanceCard(),
-          CustomCaloriesCard(),
-          CustomSleepCard(),
-        ],
-      )
+    return Column(
+      children: [
+        const Text(
+          "About yesterday", 
+          style: TextStyle(
+            fontSize: 18.0, 
+            fontWeight: FontWeight.bold
+          ),
+        ),
+        const SizedBox(height: 5.0),
+        Wrap(
+          spacing: 8.0, // gap between adjacent chips
+          runSpacing: 4.0, // gap between lines
+          children: <Widget>[
+            CustomHRCard(),
+            CustomDistanceCard(),
+            CustomCaloriesCard(),
+            CustomSleepCard(),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -64,41 +73,54 @@ class _CustomCardHRState extends State<CustomHRCard> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double cardWidth = screenWidth / 2 - 50;
-    return SizedBox(
-      width: cardWidth,
-      height: 150.0,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        elevation: 4, // Shadow depth
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.favorite,
-                size: 48.0,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(height: 6.0),
-              const Text(
-                "Heart Rate",
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
+    return TextButton(
+        style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        alignment: Alignment.centerLeft
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HealthStatsPage()),
+        );
+      },
+      child: SizedBox(
+        width: cardWidth,
+        height: 150.0,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          elevation: 4, // Shadow depth
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.favorite,
+                  size: 48.0,
+                  color: Theme.of(context).primaryColor,
                 ),
-              ),
-              Text(
-                "Avg: $_avgHeartRate bpm",
-                style: const TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 6.0),
+                const Text(
+                  "Heart Rate",
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
+                Text(
+                  "Avg: $_avgHeartRate bpm",
+                  style: const TextStyle(
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -146,43 +168,56 @@ class _CustomCardDistanceState extends State<CustomDistanceCard> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double cardWidth = screenWidth / 2 - 50;
-    return SizedBox(
-      width: cardWidth,
-      height: 150.0,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        elevation: 4, // Shadow depth
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.directions_walk,
-                size: 48.0,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(height: 6.0),
-              const Text(
-                "Distance",
-                style: const TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                "$_distance",
-                style: const TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+    return TextButton(
+        style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        alignment: Alignment.centerLeft
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HealthStatsPage()),
+        );
+      },
+      child: SizedBox(
+        width: cardWidth,
+        height: 150.0,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
           ),
-        ),
+          elevation: 4, // Shadow depth
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.directions_walk,
+                  size: 48.0,
+                  color: Theme.of(context).primaryColor,
+                ),
+                const SizedBox(height: 6.0),
+                const Text(
+                  "Distance",
+                  style: const TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "$_distance",
+                  style: const TextStyle(
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
       )
     );
   }
@@ -228,43 +263,56 @@ class _CustomCardCaloriesState extends State<CustomCaloriesCard> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double cardWidth = screenWidth / 2 - 50;
-    return SizedBox(
-      width: cardWidth,
-      height: 150.0,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        elevation: 4, // Shadow depth
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.directions_walk,
-                size: 48.0,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(height: 6.0),
-              const Text(
-                "Calories",
-                style: const TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                "$_calories kcal",
-                style: const TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+    return TextButton(
+        style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        alignment: Alignment.centerLeft
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HealthStatsPage()),
+        );
+      },
+      child: SizedBox(
+        width: cardWidth,
+        height: 150.0,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
           ),
-        ),
+          elevation: 4, // Shadow depth
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.local_fire_department,
+                  size: 48.0,
+                  color: Theme.of(context).primaryColor,
+                ),
+                const SizedBox(height: 6.0),
+                const Text(
+                  "Calories",
+                  style: const TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "$_calories kcal",
+                  style: const TextStyle(
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
       )
     );
   }
@@ -310,43 +358,56 @@ class _CustomCardSleepState extends State<CustomSleepCard> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double cardWidth = screenWidth / 2 - 50;
-    return SizedBox(
-      width: cardWidth,
-      height: 150.0,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        elevation: 4, // Shadow depth
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.bedtime,
-                size: 48.0,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(height: 6.0),
-              const Text(
-                "Sleep",
-                style: const TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                "$_sleep hours",
-                style: const TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+    return TextButton(
+        style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        alignment: Alignment.centerLeft
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HealthStatsPage()),
+        );
+      },
+      child: SizedBox(
+        width: cardWidth,
+        height: 150.0,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
           ),
-        ),
+          elevation: 4, // Shadow depth
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.bedtime,
+                  size: 48.0,
+                  color: Theme.of(context).primaryColor,
+                ),
+                const SizedBox(height: 6.0),
+                const Text(
+                  "Sleep",
+                  style: const TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "$_sleep hours",
+                  style: const TextStyle(
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
       )
     );
   }

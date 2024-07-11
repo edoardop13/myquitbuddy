@@ -78,7 +78,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   void _showSnackBar(String message) {
     final snackBar = SnackBar(
       content: Text('Cigarette count incremented. $message'),
-      duration: Duration(seconds: 5),
+      duration: const Duration(seconds: 5),
       action: SnackBarAction(
         label: 'Undo',
         onPressed: _undoAction,
@@ -93,6 +93,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Non-scrollable part
           Padding(
@@ -109,7 +110,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                   size: 200,
                   backgroundColor: _getColor(),
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 Text(
                   'Press the button every time you smoke',
                   textAlign: TextAlign.center,
@@ -118,7 +119,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                     fontSize: 16.0,
                   ),
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 _cigaretteCount == 0
                     ? Text(
                   'Still no cigarettes today! Keep it up',
