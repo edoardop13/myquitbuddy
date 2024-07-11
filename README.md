@@ -1,3 +1,5 @@
+![Logo](https://github.com/edoardop13/myquitbuddy/blob/heartbeat-api/MyQuitBanner.png)
+
 # MyQuitBuddy
 
 A new Flutter project.
