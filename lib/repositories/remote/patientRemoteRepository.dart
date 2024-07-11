@@ -40,6 +40,8 @@ class PatientRemoteRepository {
         return null;
       }
       try {
+        // Print the raw response data for debugging
+        print("Raw response data: ${value.data}");
         final data = value.data['data']['data'];
         List<Steps> steps = data
             .cast<Map<String, dynamic>>()
@@ -71,6 +73,49 @@ class PatientRemoteRepository {
     });
   }
 
+  static Future<int?> getDayTotalDistance(DateTime date) async {
+    var newFormat = DateFormat('y-MM-dd');
+    final dateFormatted = newFormat.format(date);
+    final patientUsername = await TokenManager.getUsername();
+
+    try {
+      final response = await _client.get('data/v1/distance/patients/$patientUsername/day/$dateFormatted/');
+
+      if (response.statusCode != HttpStatus.ok) {
+        print("Error: HTTP ${response.statusCode}");
+        return null;
+      }
+
+      // Check if response.data is a Map
+      if (response.data is! Map<String, dynamic>) {
+        print("Error: Expected a Map, but got ${response.data.runtimeType}");
+        return null;
+      }
+
+      Map<String, dynamic> responseMap = response.data;
+      List<dynamic> dataList = responseMap['data']['data'];
+      List<Map<String, dynamic>> average = [];
+          
+      int totalDistance = 0;
+      for (var item in dataList) {
+        int? value = int.parse(item['value']);
+        if (value != null) {
+          totalDistance += value;
+        }
+      }
+
+      return totalDistance;
+    } catch (error) {
+      print("Error fetching heart rate data: $error");
+      if (error is DioException) {
+        print("DioError details: ${error.message}");
+        print("DioError type: ${error.type}");
+        print("DioError stackTrace: ${error.stackTrace}");
+      }
+      return null;
+    }
+  }
+
   static Future<List<Map<String, dynamic>>?> getHeartRateAverages(DateTime startDate, DateTime endDate) async {
     var newFormat = DateFormat('y-MM-dd');
     final startDateFormatted = newFormat.format(startDate);
@@ -87,8 +132,68 @@ class PatientRemoteRepository {
         return null;
       }
 
-      // Print the raw response data for debugging
-      print("Raw response data: ${response.data}");
+      // Check if response.data is a Map
+      if (response.data is! Map<String, dynamic>) {
+        print("Error: Expected a Map, but got ${response.data.runtimeType}");
+        return null;
+      }
+
+      Map<String, dynamic> responseMap = response.data;
+      List<dynamic> dataList = responseMap['data'];
+      List<Map<String, dynamic>> averages = [];
+
+      for (var dateData in dataList) {
+        if (dateData is Map<String, dynamic> && 
+            dateData.containsKey('date') && 
+            dateData.containsKey('data')) {
+          String date = dateData['date'];
+          List<dynamic> heartRateData = dateData['data'];
+          
+          List<int> validValues = [];
+          for (var item in heartRateData) {
+            if (item is Map<String, dynamic> && item.containsKey('value')) {
+              int? value = item['value'] as int?;
+              if (value != null) {
+                validValues.add(value);
+              }
+            }
+          }
+
+          if (validValues.isNotEmpty) {
+            double average = validValues.reduce((a, b) => a + b) / validValues.length;
+            averages.add({
+              'date': date,
+              'average_heart_rate': average,
+              'record_count': validValues.length
+            });
+          }
+        }
+      }
+
+      return averages;
+    } catch (error) {
+      print("Error fetching heart rate data: $error");
+      if (error is DioException) {
+        print("DioError details: ${error.message}");
+        print("DioError type: ${error.type}");
+        print("DioError stackTrace: ${error.stackTrace}");
+      }
+      return null;
+    }
+  }
+
+  static Future<double?> getDayTotalCalories(DateTime date) async {
+    var newFormat = DateFormat('y-MM-dd');
+    final dateFormatted = newFormat.format(date);
+    final patientUsername = await TokenManager.getUsername();
+
+    try {
+      final response = await _client.get('data/v1/calories/patients/$patientUsername/day/$dateFormatted/');
+
+      if (response.statusCode != HttpStatus.ok) {
+        print("Error: HTTP ${response.statusCode}");
+        return null;
+      }
 
       // Check if response.data is a Map
       if (response.data is! Map<String, dynamic>) {
@@ -96,49 +201,53 @@ class PatientRemoteRepository {
         return null;
       }
 
-      // Parse the data
       Map<String, dynamic> responseMap = response.data;
-      if (responseMap.containsKey('data') && responseMap['data'] is List) {
-        List<dynamic> dataList = responseMap['data'];
-        
-        // Group the data by date
-        Map<String, List<HeartRateRecord>> groupedByDate = {};
-        for (var item in dataList) {
-          if (item is Map<String, dynamic>) {
-            String? date = item['date'] as String?;
-            if (date != null) {
-              if (!groupedByDate.containsKey(date)) {
-                groupedByDate[date] = [];
-              }
-              groupedByDate[date]!.add(HeartRateRecord.fromJson(item));
-            }
-          }
+      List<dynamic> dataList = responseMap['data']['data'];
+      List<Map<String, dynamic>> average = [];
+          
+      double total = 0;
+      for (var item in dataList) {
+        double? value = double.parse(item['value']);
+        if (value != null) {
+          total += value;
         }
+      }
 
-        // Calculate average for each date
-        List<Map<String, dynamic>> averages = [];
-        groupedByDate.forEach((date, records) {
-          if (records.isNotEmpty) {
-            List<int> validValues = records
-                .map((r) => r.value)
-                .whereType<int>()
-                .toList();
-            if (validValues.isNotEmpty) {
-              double average = validValues.reduce((a, b) => a + b) / validValues.length;
-              averages.add({
-                'date': date,
-                'average_heart_rate': average,
-                'record_count': validValues.length
-              });
-            }
-          }
-        });
+      return total;
+    } catch (error) {
+      print("Error fetching heart rate data: $error");
+      if (error is DioException) {
+        print("DioError details: ${error.message}");
+        print("DioError type: ${error.type}");
+        print("DioError stackTrace: ${error.stackTrace}");
+      }
+      return null;
+    }
+  }
 
-        return averages;
-      } else {
-        print("Error: 'data' key not found or not a List");
+  static Future<int?> getDayTotalSleep(DateTime date) async {
+    var newFormat = DateFormat('y-MM-dd');
+    final dateFormatted = newFormat.format(date);
+    final patientUsername = await TokenManager.getUsername();
+
+    try {
+      final response = await _client.get('data/v1/sleep/patients/$patientUsername/day/$dateFormatted/');
+
+      if (response.statusCode != HttpStatus.ok) {
+        print("Error: HTTP ${response.statusCode}");
         return null;
       }
+
+      // Check if response.data is a Map
+      if (response.data is! Map<String, dynamic>) {
+        print("Error: Expected a Map, but got ${response.data.runtimeType}");
+        return null;
+      }
+
+      Map<String, dynamic> responseMap = response.data;
+      int timeInBed = responseMap['data']['data'][0]['timeInBed'];
+
+      return timeInBed;
     } catch (error) {
       print("Error fetching heart rate data: $error");
       if (error is DioException) {
