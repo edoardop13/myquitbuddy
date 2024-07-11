@@ -41,7 +41,7 @@ class _ProfilePage extends State<ProfilePage> {
           children: [
             SimpleUserCard(
               userName: username,
-              userProfilePic: const AssetImage('profile.jpg'),
+              userProfilePic: const AssetImage('assets/profile.jpg'),
               imageRadius: 50,
               textStyle: const TextStyle(fontSize: 40),
             ),
@@ -82,7 +82,7 @@ class _ProfilePage extends State<ProfilePage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             const Image(
-                              image: AssetImage('icon/unipd.png'),
+                              image: AssetImage('assets/icon/unipd.png'),
                               width: 100,
                             ),
                             const SizedBox(height: 10),

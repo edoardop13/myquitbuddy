@@ -48,7 +48,8 @@ class _CustomCardState extends State<CustomCard> {
   Future<void> _fetchHeartRate() async {
     try {
       print("fetching heartrate");
-      final measures = await PatientRemoteRepository.getHeartrate(DateTime(2024));
+      final measures = await PatientRemoteRepository.getHeartrate(DateTime.now());
+      print("Here");
       print(measures);
       setState(() {
         _measures = measures ?? [];
