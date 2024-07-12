@@ -51,10 +51,10 @@ class NicotineInfoPopup extends StatelessWidget {
                           color: Colors.grey[200], // Light grey background
                           borderRadius: BorderRadius.circular(12), // Rounded corners
                         ),
-                        child: Text(
+                        child: const Text(
                           "Tracking these factors alongside your smoking habits can provide valuable insights into nicotine's immediate and long-term effects on your body. Use this information to make informed decisions about your health and smoking habits.",
                           style: TextStyle(
-                            fontStyle: FontStyle.italic,
+                            fontStyle: FontStyle.normal,
                             fontSize: 16,
                             color: Colors.black87, // Slightly darker text for better contrast
                           ),
