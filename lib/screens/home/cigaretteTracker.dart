@@ -190,26 +190,36 @@ class CircularIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ClipOval(
-          child: Material(
-            color: backgroundColor,
-            child: InkWell(
-              splashColor: Theme.of(context).primaryColorLight,
-              onTap: onPressed,
-              child: SizedBox(
-                width: size,
-                height: size,
-                child: Center(
-                  child: icon,
-                ),
-              ),
-            ),
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.8),
+            offset: Offset(-6.0, -6.0),
+            blurRadius: 16.0,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            offset: Offset(6.0, 6.0),
+            blurRadius: 16.0,
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: CircleBorder(),
+          splashColor: Theme.of(context).primaryColorLight.withOpacity(0.5),
+          onTap: onPressed,
+          child: Center(
+            child: icon,
           ),
         ),
-      ],
+      ),
     );
   }
 }
