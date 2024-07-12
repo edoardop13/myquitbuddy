@@ -43,7 +43,7 @@ class HomePageState extends State<HomePage> {
           });
           pageController.jumpToPage(index);
         },
-        indicatorColor: const Color.fromARGB(255, 0, 185, 231),
+        indicatorColor: const Color(0xFF007F9F),
         selectedIndex: selectedIndex,
         destinations: <Widget>[
           _buildNavigationDestination(Icons.add_box_outlined, 'Home', 0),
