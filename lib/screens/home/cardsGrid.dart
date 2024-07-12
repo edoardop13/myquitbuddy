@@ -161,7 +161,7 @@ class CustomDistanceCard extends StatefulWidget {
 
 class _CustomCardDistanceState extends State<CustomDistanceCard> {
   final PatientRemoteRepository _apiService = PatientRemoteRepository();
-  int _distance = 0;
+  String _distance = "";
   bool _isLoading = true;
 
   @override
@@ -173,9 +173,9 @@ class _CustomCardDistanceState extends State<CustomDistanceCard> {
   Future<void> _fetchData() async {
     try {
       final date = DateTime.now().subtract(const Duration(days: 1));
-      final distance = await PatientRemoteRepository.getDayTotalDistance(date);
+      final distance = await PatientRemoteRepository.getDayTotalDistance(date) ?? 0;
       setState(() {
-        _distance = distance ?? 0;
+        _distance = (distance / 100000).toStringAsFixed(2);
         _isLoading = false;
       });
     } catch (e) {
@@ -210,7 +210,7 @@ class _CustomCardDistanceState extends State<CustomDistanceCard> {
             ),
           ),
           Text(
-            "$_distance",
+            "$_distance km",
             style: const TextStyle(
               fontSize: 12.0,
               fontWeight: FontWeight.bold,
