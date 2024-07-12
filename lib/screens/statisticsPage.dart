@@ -237,6 +237,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         borderRadius: BorderRadius.circular(15.0),
       ),
       elevation: 4,
+      shadowColor: Colors.grey.withOpacity(0.3),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
