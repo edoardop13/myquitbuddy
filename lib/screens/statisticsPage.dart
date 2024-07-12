@@ -188,7 +188,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
               _buildGraphCard(
                 context,
                 title: "Distance",
-                child: const Text("Placeholder"),
+                child: FutureBuilder<Widget>(
+                  future: _buildBarChart(),
+                  builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return snapshot.data ?? Container();
+                    }
+                  },
+                ),
               ),
               const SizedBox(height: 16.0),
               _buildGraphCard(
@@ -289,38 +300,63 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
-  // Placeholder for a bar chart for distance
   Future<Widget> _buildBarChart() async {
-    final endDate = DateTime.now().subtract(const Duration(days: 1));
-    final startDate = endDate.subtract(const Duration(days: 7));
-    // final measures = await PatientRemoteRepository.getHeartRateAverages(startDate, endDate);
+    final today = DateTime.now();
+    final m1 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 1)));
+    final m2 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 2)));
+    final m3 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 3)));
+    final m4 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 4)));
+    final m5 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 5)));
+    final m6 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 6)));
+    final m7 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 7)));
+
     return SizedBox(
       height: 200,
       child: BarChart(
         BarChartData(
           barGroups: [
             BarChartGroupData(
-              x: 0,
-              barRods: [
-                BarChartRodData(toY: 5, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
               x: 1,
               barRods: [
-                BarChartRodData(toY: 6, color: Colors.blue),
+                BarChartRodData(toY: m1!.toDouble()/100000, color: Colors.blue),
               ],
             ),
             BarChartGroupData(
               x: 2,
               barRods: [
-                BarChartRodData(toY: 5.5, color: Colors.blue),
+                BarChartRodData(toY: m2!.toDouble()/100000, color: Colors.blue),
               ],
             ),
             BarChartGroupData(
               x: 3,
               barRods: [
-                BarChartRodData(toY: 7, color: Colors.blue),
+                BarChartRodData(toY: m3!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+            BarChartGroupData(
+              x: 4,
+              barRods: [
+                BarChartRodData(toY: m4!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+
+            BarChartGroupData(
+              x: 5,
+              barRods: [
+                BarChartRodData(toY: m5!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+            BarChartGroupData(
+              x: 6,
+              barRods: [
+                BarChartRodData(toY: m6!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+
+            BarChartGroupData(
+              x: 7,
+              barRods: [
+                BarChartRodData(toY: m7!.toDouble()/100000, color: Colors.blue),
               ],
             ),
           ],
@@ -328,6 +364,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       ),
     );
   }
+
 
   // Placeholder for a pie chart for calories
   Widget _buildPieChart() {

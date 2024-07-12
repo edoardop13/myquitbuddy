@@ -182,6 +182,73 @@ class PatientRemoteRepository {
     }
   }
 
+  static Future<List<Map<String, dynamic>>?> getDistanceAverages(DateTime startDate, DateTime endDate) async {
+    var newFormat = DateFormat('y-MM-dd');
+    final startDateFormatted = newFormat.format(startDate);
+    final endDateFormatted = newFormat.format(endDate);
+    final patientUsername = await TokenManager.getUsername();
+
+    final url = 'data/v1/distance/patients/$patientUsername/daterange/start_date/$startDateFormatted/end_date/$endDateFormatted';
+
+    try {
+      final response = await _client.get(url);
+
+      if (response.statusCode != HttpStatus.ok) {
+        print("Error: HTTP ${response.statusCode}");
+        return null;
+      }
+
+      // Check if response.data is a Map
+      if (response.data is! Map<String, dynamic>) {
+        print("Error: Expected a Map, but got ${response.data.runtimeType}");
+        return null;
+      }
+
+      Map<String, dynamic> responseMap = response.data;
+      List<dynamic> dataList = responseMap['data'];
+      List<Map<String, dynamic>> averages = [];
+
+      for (var dateData in dataList) {
+        if (dateData is Map<String, dynamic> &&
+            dateData.containsKey('date') &&
+            dateData.containsKey('data')) {
+          String date = dateData['date'];
+          List<dynamic> distanceData = dateData['data'];
+
+          List<int> validValues = [];
+          for (var item in distanceData) {
+            if (item is Map<String, dynamic> && item.containsKey('value')) {
+              int? value = item['value'] as int?;
+              if (value != null) {
+                validValues.add(value);
+              }
+            }
+          }
+
+          if (validValues.isNotEmpty) {
+            int total = validValues.reduce((a, b) => a + b);
+            averages.add({
+              'date': date,
+              'average_distance': total,
+              'record_count': validValues.length
+            });
+          }
+        }
+      }
+
+      return averages;
+    } catch (error) {
+      print("Error fetching distance data: $error");
+      if (error is DioException) {
+        print("DioError details: ${error.message}");
+        print("DioError type: ${error.type}");
+        print("DioError stackTrace: ${error.stackTrace}");
+      }
+      return null;
+    }
+  }
+
+
   static Future<double?> getDayTotalCalories(DateTime date) async {
     var newFormat = DateFormat('y-MM-dd');
     final dateFormatted = newFormat.format(date);
