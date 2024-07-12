@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myquitbuddy/models/heartrate.dart';
 import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
 import 'package:myquitbuddy/screens/home/healthStatsPage.dart';
-import 'package:myquitbuddy/sharedWidgets//nicotine_info_popup.dart';
+import 'package:myquitbuddy/sharedWidgets/nicotine_info_popup.dart';
 
 class CardsGrid extends StatelessWidget {
   const CardsGrid({Key? key}) : super(key: key);
