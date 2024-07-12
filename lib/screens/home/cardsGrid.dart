@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myquitbuddy/models/heartrate.dart';
 import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
-import 'package:myquitbuddy/screens/home/healthStatsPage.dart';
 import 'package:myquitbuddy/sharedWidgets//nicotine_info_popup.dart';
 
 class CardsGrid extends StatelessWidget {
@@ -125,12 +123,7 @@ class _CustomCardHRState extends State<CustomHRCard> {
   @override
   Widget build(BuildContext context) {
     return CustomCard(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HealthStatsPage()),
-        );
-      },
+      onPressed: (){},
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -198,12 +191,7 @@ class _CustomCardDistanceState extends State<CustomDistanceCard> {
   @override
   Widget build(BuildContext context) {
     return CustomCard(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HealthStatsPage()),
-        );
-      },
+      onPressed: (){},
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -271,12 +259,7 @@ class _CustomCardCaloriesState extends State<CustomCaloriesCard> {
   @override
   Widget build(BuildContext context) {
     return CustomCard(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HealthStatsPage()),
-        );
-      },
+      onPressed: (){},
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -344,12 +327,7 @@ class _CustomCardSleepState extends State<CustomSleepCard> {
   @override
   Widget build(BuildContext context) {
     return CustomCard(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HealthStatsPage()),
-        );
-      },
+      onPressed: (){},
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
