@@ -153,8 +153,8 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15.0),
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black12,
