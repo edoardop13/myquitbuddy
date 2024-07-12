@@ -2,23 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:myquitbuddy/models/heartrate.dart';
 import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
 import 'package:myquitbuddy/screens/home/healthStatsPage.dart';
+import 'package:myquitbuddy/sharedWidgets//nicotine_info_popup.dart'; // Import the new file
 
 class CardsGrid extends StatelessWidget {
+  const CardsGrid({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text(
-          "About yesterday", 
-          style: TextStyle(
-            fontSize: 18.0, 
-            fontWeight: FontWeight.bold
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "About yesterday",
+              style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+            const SizedBox(width: 8.0),
+            IconButton(
+              icon: Icon(Icons.info_outline, color: Theme.of(context).primaryColor),
+              onPressed: () => _showInfoDialog(context),
+            ),
+          ],
         ),
         const SizedBox(height: 5.0),
         Wrap(
-          spacing: 8.0, // gap between adjacent chips
-          runSpacing: 4.0, // gap between lines
+          spacing: 8.0,
+          runSpacing: 4.0,
           children: <Widget>[
             CustomHRCard(),
             CustomDistanceCard(),
@@ -27,6 +40,13 @@ class CardsGrid extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  void _showInfoDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => const NicotineInfoPopup(),
     );
   }
 }
