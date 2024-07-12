@@ -106,7 +106,7 @@ class PatientRemoteRepository {
 
       return totalDistance;
     } catch (error) {
-      print("Error fetching heart rate data: $error");
+      print("Error fetching data: $error");
       if (error is DioException) {
         print("DioError details: ${error.message}");
         print("DioError type: ${error.type}");
@@ -152,7 +152,7 @@ class PatientRemoteRepository {
           List<int> validValues = [];
           for (var item in heartRateData) {
             if (item is Map<String, dynamic> && item.containsKey('value')) {
-              int? value = item['value'] as int?;
+              int? value = item['value'];
               if (value != null) {
                 validValues.add(value);
               }
@@ -172,7 +172,7 @@ class PatientRemoteRepository {
 
       return averages;
     } catch (error) {
-      print("Error fetching heart rate data: $error");
+      print("Error fetching data: $error");
       if (error is DioException) {
         print("DioError details: ${error.message}");
         print("DioError type: ${error.type}");
@@ -182,7 +182,7 @@ class PatientRemoteRepository {
     }
   }
 
-  static Future<List<Map<String, dynamic>>?> getDistanceAverages(DateTime startDate, DateTime endDate) async {
+  static Future<List<Map<String, dynamic>>?> getDailyDistanceTotal(DateTime startDate, DateTime endDate) async {
     var newFormat = DateFormat('y-MM-dd');
     final startDateFormatted = newFormat.format(startDate);
     final endDateFormatted = newFormat.format(endDate);
@@ -215,10 +215,10 @@ class PatientRemoteRepository {
           String date = dateData['date'];
           List<dynamic> distanceData = dateData['data'];
 
-          List<int> validValues = [];
+          List<double> validValues = [];
           for (var item in distanceData) {
             if (item is Map<String, dynamic> && item.containsKey('value')) {
-              int? value = item['value'] as int?;
+              double? value = double.parse(item['value']);
               if (value != null) {
                 validValues.add(value);
               }
@@ -226,10 +226,10 @@ class PatientRemoteRepository {
           }
 
           if (validValues.isNotEmpty) {
-            int total = validValues.reduce((a, b) => a + b);
+            double total = validValues.reduce((a, b) => a + b);
             averages.add({
               'date': date,
-              'average_distance': total,
+              'total_distance': total,
               'record_count': validValues.length
             });
           }
@@ -238,7 +238,73 @@ class PatientRemoteRepository {
 
       return averages;
     } catch (error) {
-      print("Error fetching distance data: $error");
+      print("Error fetching data: $error");
+      if (error is DioException) {
+        print("DioError details: ${error.message}");
+        print("DioError type: ${error.type}");
+        print("DioError stackTrace: ${error.stackTrace}");
+      }
+      return null;
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>?> getDailyCaloriesTotal(DateTime startDate, DateTime endDate) async {
+    var newFormat = DateFormat('y-MM-dd');
+    final startDateFormatted = newFormat.format(startDate);
+    final endDateFormatted = newFormat.format(endDate);
+    final patientUsername = await TokenManager.getUsername();
+
+    final url = 'data/v1/calories/patients/$patientUsername/daterange/start_date/$startDateFormatted/end_date/$endDateFormatted';
+
+    try {
+      final response = await _client.get(url);
+
+      if (response.statusCode != HttpStatus.ok) {
+        print("Error: HTTP ${response.statusCode}");
+        return null;
+      }
+
+      // Check if response.data is a Map
+      if (response.data is! Map<String, dynamic>) {
+        print("Error: Expected a Map, but got ${response.data.runtimeType}");
+        return null;
+      }
+
+      Map<String, dynamic> responseMap = response.data;
+      List<dynamic> dataList = responseMap['data'];
+      List<Map<String, dynamic>> averages = [];
+
+      for (var dateData in dataList) {
+        if (dateData is Map<String, dynamic> &&
+            dateData.containsKey('date') &&
+            dateData.containsKey('data')) {
+          String date = dateData['date'];
+          List<dynamic> distanceData = dateData['data'];
+
+          List<double> validValues = [];
+          for (var item in distanceData) {
+            if (item is Map<String, dynamic> && item.containsKey('value')) {
+              double? value = double.parse(item['value']);
+              if (value != null) {
+                validValues.add(value);
+              }
+            }
+          }
+
+          if (validValues.isNotEmpty) {
+            double total = validValues.reduce((a, b) => a + b);
+            averages.add({
+              'date': date,
+              'total_calories': num.parse(total.toStringAsFixed(2)),
+              'record_count': validValues.length
+            });
+          }
+        }
+      }
+
+      return averages;
+    } catch (error) {
+      print("Error fetching data: $error");
       if (error is DioException) {
         print("DioError details: ${error.message}");
         print("DioError type: ${error.type}");
@@ -270,7 +336,6 @@ class PatientRemoteRepository {
 
       Map<String, dynamic> responseMap = response.data;
       List<dynamic> dataList = responseMap['data']['data'];
-      List<Map<String, dynamic>> average = [];
           
       double total = 0;
       for (var item in dataList) {
@@ -282,7 +347,7 @@ class PatientRemoteRepository {
 
       return total;
     } catch (error) {
-      print("Error fetching heart rate data: $error");
+      print("Error fetching data: $error");
       if (error is DioException) {
         print("DioError details: ${error.message}");
         print("DioError type: ${error.type}");
@@ -316,7 +381,66 @@ class PatientRemoteRepository {
 
       return timeInBed;
     } catch (error) {
-      print("Error fetching heart rate data: $error");
+      print("Error fetching data: $error");
+      if (error is DioException) {
+        print("DioError details: ${error.message}");
+        print("DioError type: ${error.type}");
+        print("DioError stackTrace: ${error.stackTrace}");
+      }
+      return null;
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>?> getDailySleepTotal(DateTime startDate, DateTime endDate) async {
+    var newFormat = DateFormat('y-MM-dd');
+    final startDateFormatted = newFormat.format(startDate);
+    final endDateFormatted = newFormat.format(endDate);
+    final patientUsername = await TokenManager.getUsername();
+
+    final url = 'data/v1/sleep/patients/$patientUsername/daterange/start_date/$startDateFormatted/end_date/$endDateFormatted';
+
+    try {
+      final response = await _client.get(url);
+
+      if (response.statusCode != HttpStatus.ok) {
+        print("Error: HTTP ${response.statusCode}");
+        return null;
+      }
+
+      // Check if response.data is a Map
+      if (response.data is! Map<String, dynamic>) {
+        print("Error: Expected a Map, but got ${response.data.runtimeType}");
+        return null;
+      }
+
+      Map<String, dynamic> responseMap = response.data;
+      List<dynamic> dataList = responseMap['data'];
+      List<Map<String, dynamic>> averages = [];
+
+      for (var dateData in dataList) {
+        if (dateData is Map<String, dynamic> &&
+            dateData.containsKey('date') &&
+            dateData.containsKey('data')) {
+          String date = dateData['date'];
+          List<dynamic> sleepData = dateData['data'];
+          
+          if (!sleepData.isEmpty) {
+              averages.add({
+              'date': date,
+              'total_sleep': sleepData[0]['timeInBed'],
+              });
+          } else {
+            averages.add({
+              'date': date,
+              'total_sleep': 0,
+              });
+          }
+        }
+      }
+
+      return averages;
+    } catch (error) {
+      print("Error fetching data: $error");
       if (error is DioException) {
         print("DioError details: ${error.message}");
         print("DioError type: ${error.type}");

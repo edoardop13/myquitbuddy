@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
+import 'package:myquitbuddy/sharedWidgets/graph_info_popup.dart';
 import 'package:myquitbuddy/utils/sqlite_service.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 
@@ -8,6 +9,8 @@ class StatisticsPage extends StatefulWidget {
   @override
   _StatisticsPageState createState() => _StatisticsPageState();
 }
+
+enum InfoPopupType { smokedToday, heatmap, heartrate, distance, calories, sleep }
 
 class _StatisticsPageState extends State<StatisticsPage> {
   Map<String, int> _cigaretteCounts = {};
@@ -125,7 +128,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ],
-                ),
+                ), type: InfoPopupType.smokedToday,
               ),
               const SizedBox(height: 16.0),
               _buildGraphCard(
@@ -165,7 +168,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       ),
                     ),
                   ],
-                ),
+                ), type: InfoPopupType.heatmap,
               ),
               const SizedBox(height: 16.0),
               _buildGraphCard(
@@ -182,7 +185,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       return snapshot.data ?? Container();
                     }
                   },
-                ),
+                ), type: InfoPopupType.heartrate,
               ),
               const SizedBox(height: 16.0),
               _buildGraphCard(
@@ -199,7 +202,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       return snapshot.data ?? Container();
                     }
                   },
-                ),
+                ), type: InfoPopupType.distance,
               ),
               const SizedBox(height: 16.0),
               _buildGraphCard(
@@ -216,7 +219,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       return snapshot.data ?? Container();
                     }
                   },
-                ),
+                ), type: InfoPopupType.calories,
               ),
               const SizedBox(height: 16.0),
               _buildGraphCard(
@@ -233,7 +236,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       return snapshot.data ?? Container();
                     }
                   },
-                ),
+                ), type: InfoPopupType.sleep,
               ),
             ],
           ),
@@ -264,7 +267,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return _cigaretteCounts.values.reduce((max, value) => max > value ? max : value).toDouble() + 1;
   }
 
-  Widget _buildGraphCard(BuildContext context, {required String title, required Widget child}) {
+  Widget _buildGraphCard(BuildContext context, {required String title, required InfoPopupType type, required Widget child}) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -276,15 +279,31 @@ class _StatisticsPageState extends State<StatisticsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.headlineMedium,
+            Row(
+              children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(width: 2.0),
+                  IconButton(
+                    icon: Icon(Icons.info_outline, color: Theme.of(context).primaryColor),
+                    onPressed: () => _showInfoDialog(context, type),
+                  ),
+              ]
             ),
             const SizedBox(height: 16.0),
             child,
           ],
         ),
       ),
+    );
+  }
+
+  void _showInfoDialog(BuildContext context, InfoPopupType type) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => new GraphInfoPopup(type),
     );
   }
 
@@ -300,13 +319,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
           lineBarsData: [
             LineChartBarData(
               spots: [
-                FlSpot(1, measures?.elementAt(0)['average_heart_rate']),
-                FlSpot(2, measures?.elementAt(1)['average_heart_rate']),
-                FlSpot(3, measures?.elementAt(2)['average_heart_rate']),
-                FlSpot(4, measures?.elementAt(3)['average_heart_rate']),
-                FlSpot(5, measures?.elementAt(4)['average_heart_rate']),
-                FlSpot(6, measures?.elementAt(5)['average_heart_rate']),
-                FlSpot(7, measures?.elementAt(6)['average_heart_rate']),
+                for (int i = 0; i < 7; i++)
+                  FlSpot(
+                    double.parse(measures?.elementAt(i)['date'].split('-')[2]),
+                    measures?.elementAt(i)['average_heart_rate'],
+                  ),
               ],
               isCurved: true,
               color: Colors.red,
@@ -323,64 +340,22 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   Future<Widget> _buildDistanceChart() async {
-    final today = DateTime.now();
-    final m1 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 1)));
-    final m2 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 2)));
-    final m3 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 3)));
-    final m4 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 4)));
-    final m5 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 5)));
-    final m6 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 6)));
-    final m7 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 7)));
+    final endDate = DateTime.now().subtract(const Duration(days: 1));
+    final startDate = endDate.subtract(const Duration(days: 7));
+    final measures = await PatientRemoteRepository.getDailyDistanceTotal(startDate, endDate);
 
     return SizedBox(
       height: 200,
       child: BarChart(
         BarChartData(
           barGroups: [
-            BarChartGroupData(
-              x: 1,
-              barRods: [
-                BarChartRodData(toY: m1!.toDouble()/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 2,
-              barRods: [
-                BarChartRodData(toY: m2!.toDouble()/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 3,
-              barRods: [
-                BarChartRodData(toY: m3!.toDouble()/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 4,
-              barRods: [
-                BarChartRodData(toY: m4!.toDouble()/100000, color: Colors.blue),
-              ],
-            ),
-
-            BarChartGroupData(
-              x: 5,
-              barRods: [
-                BarChartRodData(toY: m5!.toDouble()/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 6,
-              barRods: [
-                BarChartRodData(toY: m6!.toDouble()/100000, color: Colors.blue),
-              ],
-            ),
-
-            BarChartGroupData(
-              x: 7,
-              barRods: [
-                BarChartRodData(toY: m7!.toDouble()/100000, color: Colors.blue),
-              ],
-            ),
+            for (int i = 0; i < 7; i++)
+              BarChartGroupData(
+                x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
+                barRods: [
+                  BarChartRodData(toY: measures?.elementAt(i)['total_distance']/100000, color: Colors.blue),
+                ],
+              ),
           ],
         ),
       ),
@@ -388,64 +363,22 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   Future<Widget> _buildCaloriesChart() async {
-    final today = DateTime.now();
-    final m1 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 1)));
-    final m2 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 2)));
-    final m3 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 3)));
-    final m4 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 4)));
-    final m5 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 5)));
-    final m6 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 6)));
-    final m7 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 7)));
+    final endDate = DateTime.now().subtract(const Duration(days: 1));
+    final startDate = endDate.subtract(const Duration(days: 7));
+    final measures = await PatientRemoteRepository.getDailyCaloriesTotal(startDate, endDate);
 
     return SizedBox(
       height: 200,
       child: BarChart(
         BarChartData(
           barGroups: [
-            BarChartGroupData(
-              x: 1,
-              barRods: [
-                BarChartRodData(toY: m1!.toDouble(), color: Colors.orange),
-              ],
-            ),
-            BarChartGroupData(
-              x: 2,
-              barRods: [
-                BarChartRodData(toY: m2!.toDouble(), color: Colors.orange),
-              ],
-            ),
-            BarChartGroupData(
-              x: 3,
-              barRods: [
-                BarChartRodData(toY: m3!.toDouble(), color: Colors.orange),
-              ],
-            ),
-            BarChartGroupData(
-              x: 4,
-              barRods: [
-                BarChartRodData(toY: m4!.toDouble(), color: Colors.orange),
-              ],
-            ),
-
-            BarChartGroupData(
-              x: 5,
-              barRods: [
-                BarChartRodData(toY: m5!.toDouble(), color: Colors.orange),
-              ],
-            ),
-            BarChartGroupData(
-              x: 6,
-              barRods: [
-                BarChartRodData(toY: m6!.toDouble(), color: Colors.orange),
-              ],
-            ),
-
-            BarChartGroupData(
-              x: 7,
-              barRods: [
-                BarChartRodData(toY: m7!.toDouble(), color: Colors.orange),
-              ],
-            ),
+            for (int i = 0; i < 7; i++)
+              BarChartGroupData(
+                x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
+                barRods: [
+                  BarChartRodData(toY: measures?.elementAt(i)['total_calories'], color: Colors.orange),
+                ],
+              ),
           ],
         ),
       ),
@@ -454,22 +387,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
 
   Future<Widget> _buildSleepChart() async {
-    final today = DateTime.now();
-    int? m1 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 1)));
-    m1 ??= 0;
-    int? m2 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 2)));
-    int? m3 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 3)));
-    int? m4 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 4)));
-    int? m5 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 5)));
-    int? m6 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 6)));
-    int? m7 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 7)));
-
-    m2 ??= 0;
-    m3 ??= 0;
-    m4 ??= 0;
-    m5 ??= 0;
-    m6 ??= 0;
-    m7 ??= 0;
+    final endDate = DateTime.now().subtract(const Duration(days: 1));
+    final startDate = endDate.subtract(const Duration(days: 7));
+    final measures = await PatientRemoteRepository.getDailySleepTotal(startDate, endDate);
 
     return SizedBox(
       height: 200,
@@ -477,49 +397,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
         BarChartData(
           barGroups: [
-            BarChartGroupData(
-              x: 1,
-              barRods: [
-                BarChartRodData(toY: m1!.toDouble()/60, color: Colors.lightBlueAccent),
-              ],
-            ),
-            BarChartGroupData(
-              x: 2,
-              barRods: [
-                BarChartRodData(toY: m2!.toDouble()/60, color: Colors.lightBlueAccent),
-              ],
-            ),
-            BarChartGroupData(
-              x: 3,
-              barRods: [
-                BarChartRodData(toY: m3!.toDouble()/60, color: Colors.lightBlueAccent),
-              ],
-            ),
-            BarChartGroupData(
-              x: 4,
-              barRods: [
-                BarChartRodData(toY: m4!.toDouble()/60, color: Colors.lightBlueAccent),
-              ],
-            ),
-
-            BarChartGroupData(
-              x: 5,
-              barRods: [
-                BarChartRodData(toY: m5!.toDouble()/60, color: Colors.lightBlueAccent),
-              ],
-            ),
-            BarChartGroupData(
-              x: 6,
-              barRods: [
-                BarChartRodData(toY: m6!.toDouble()/60, color: Colors.lightBlueAccent),
-              ],
-            ),
-            BarChartGroupData(
-              x: 7,
-              barRods: [
-                BarChartRodData(toY: m7!.toDouble()/60, color: Colors.lightBlueAccent),
-              ],
-            ),
+            for (int i = 0; i < 7; i++)
+              BarChartGroupData(
+                x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
+                barRods: [
+                  BarChartRodData(toY: measures?.elementAt(i)['total_sleep']/60, color: Colors.lightBlueAccent),
+                ],
+              ),
           ],
         ),
       ),
