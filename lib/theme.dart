@@ -9,7 +9,7 @@ class ThemeProvider extends ChangeNotifier {
   );
 
   ThemeData dark = ThemeData.dark().copyWith(
-    primaryColor: Colors.green,
+    primaryColor: Color(0xFF007F9F),
   );
 
   ThemeProvider(bool darkThemeOn) {
