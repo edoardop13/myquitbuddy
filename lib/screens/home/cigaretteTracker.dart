@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 import 'cardsGrid.dart';
-import 'package:myquitbuddy/utils/indexed_db_service.dart';
+import 'package:myquitbuddy/utils/sqlite_service.dart';
+import 'package:myquitbuddy/theme.dart';
 
 class CigaretteTracker extends StatefulWidget {
   @override
@@ -20,8 +22,8 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
 
   Future<void> _loadData() async {
     String today = DateTime.now().toIso8601String().substring(0, 10);
-    Map<String, int> counts = await IndexedDBService.getCigaretteCounts(today);
-    
+    Map<String, int> counts = await SQLiteService.getCigaretteCounts(today);
+
     setState(() {
       _cigaretteCount = counts.values.fold(0, (sum, count) => sum + count);
     });
@@ -32,7 +34,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
       if (_cigaretteCount < 100) {
         _cigaretteCount++;
         _lastIncrementTime = DateTime.now();
-        IndexedDBService.incrementCigaretteCount(_lastIncrementTime!);
+        SQLiteService.incrementCigaretteCount(_lastIncrementTime!);
       }
     });
     _showSnackBar(_getMessage());
@@ -42,7 +44,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
     if (_lastIncrementTime != null) {
       setState(() {
         _cigaretteCount--;
-        IndexedDBService.decrementCigaretteCount(_lastIncrementTime!);
+        SQLiteService.decrementCigaretteCount(_lastIncrementTime!);
         _lastIncrementTime = null;
       });
     }
@@ -51,7 +53,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   Color _getColor() {
     if (_cigaretteCount < 1) {
       return Colors.green;
-    } 
+    }
     else if (_cigaretteCount < 3) {
       return const Color.fromARGB(255, 253, 230, 25);
     } else if (_cigaretteCount < 6) {
@@ -78,7 +80,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   void _showSnackBar(String message) {
     final snackBar = SnackBar(
       content: Text('Cigarette count incremented. $message'),
-      duration: Duration(seconds: 5),
+      duration: const Duration(seconds: 5),
       action: SnackBarAction(
         label: 'Undo',
         onPressed: _undoAction,
@@ -91,25 +93,30 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkSelected(); // for changes if dark mode
+
     return Scaffold(
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Non-scrollable part
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
                 CircularIconButton(
-                  onPressed: _incrementCounter,
-                  icon: const Icon(
-                    Icons.smoking_rooms,
-                    size: 80,
-                    color: Colors.white,
-                  ),
-                  size: 200,
-                  backgroundColor: _getColor(),
+                onPressed: _incrementCounter,
+                icon: const Icon(
+                  Icons.smoking_rooms,
+                  size: 80,
+                  color: Colors.white,
                 ),
-                SizedBox(height: 16.0),
+                size: 200,
+                backgroundColor: _getColor(),
+                isDarkMode: isDarkMode,
+                ),
+                const SizedBox(height: 16.0),
                 Text(
                   'Press the button every time you smoke',
                   textAlign: TextAlign.center,
@@ -118,24 +125,24 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                     fontSize: 16.0,
                   ),
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 _cigaretteCount == 0
                     ? Text(
-                        'Still no cigarettes today! Keep it up',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
-                      )
+                  'Still no cigarettes today! Keep it up',
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
+                )
                     : RichText(
-                        text: TextSpan(
-                          text: 'Cigarettes smoked today: ',
-                          style: Theme.of(context).textTheme.titleLarge,
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: '$_cigaretteCount',
-                              style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
+                  text: TextSpan(
+                    text: 'Cigarettes smoked today: ',
+                    style: Theme.of(context).textTheme.titleLarge,
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: '$_cigaretteCount',
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
                       ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -147,7 +154,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                 borderRadius: BorderRadius.circular(15.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black12,
@@ -178,6 +185,7 @@ class CircularIconButton extends StatelessWidget {
   final Icon icon;
   final double size;
   final Color backgroundColor;
+  final bool isDarkMode;
 
   const CircularIconButton({
     Key? key,
@@ -185,30 +193,43 @@ class CircularIconButton extends StatelessWidget {
     required this.icon,
     this.size = 50.0,
     this.backgroundColor = Colors.blue,
+    required this.isDarkMode,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ClipOval(
-          child: Material(
-            color: backgroundColor,
-            child: InkWell(
-              splashColor: Theme.of(context).primaryColorLight,
-              onTap: onPressed,
-              child: SizedBox(
-                width: size,
-                height: size,
-                child: Center(
-                  child: icon,
-                ),
-              ),
-            ),
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+        boxShadow: isDarkMode
+            ? []  // No shadow in dark mode
+            : [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.8),
+            offset: Offset(-6.0, -6.0),
+            blurRadius: 16.0,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            offset: Offset(6.0, 6.0),
+            blurRadius: 16.0,
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: CircleBorder(),
+          splashColor: Theme.of(context).primaryColorLight.withOpacity(0.5),
+          onTap: onPressed,
+          child: Center(
+            child: icon,
           ),
         ),
-      ],
+      ),
     );
   }
 }

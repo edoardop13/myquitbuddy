@@ -1,6 +1,7 @@
 import 'package:babstrap_settings_screen/babstrap_settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:myquitbuddy/managers/tokenManager.dart';
+import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
 import 'package:myquitbuddy/screens/login/loginPage.dart';
 import 'package:myquitbuddy/theme.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +41,7 @@ class _ProfilePage extends State<ProfilePage> {
           children: [
             SimpleUserCard(
               userName: username,
-              userProfilePic: AssetImage('profile.jpg'),
+              userProfilePic: const AssetImage('assets/profile.jpg'),
               imageRadius: 50,
               textStyle: const TextStyle(fontSize: 40),
             ),
@@ -81,7 +82,7 @@ class _ProfilePage extends State<ProfilePage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             const Image(
-                              image: AssetImage('icon/unipd.png'),
+                              image: AssetImage('assets/icon/unipd.png'),
                               width: 100,
                             ),
                             const SizedBox(height: 10),

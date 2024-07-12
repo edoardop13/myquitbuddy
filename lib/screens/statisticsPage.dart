@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:myquitbuddy/utils/indexed_db_service.dart';
+import 'package:myquitbuddy/repositories/remote/patientRemoteRepository.dart';
+import 'package:myquitbuddy/utils/sqlite_service.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 
 class StatisticsPage extends StatefulWidget {
@@ -11,6 +12,8 @@ class StatisticsPage extends StatefulWidget {
 class _StatisticsPageState extends State<StatisticsPage> {
   Map<String, int> _cigaretteCounts = {};
   Map<DateTime, int> _heatmapData = {};
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   @override
   void initState() {
@@ -19,130 +22,217 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   Future<void> _loadData() async {
-    String today = DateTime.now().toIso8601String().substring(0, 10);
-    Map<String, int> counts = await IndexedDBService.getCigaretteCounts(today);
-    Map<DateTime, int> heatmapData = await IndexedDBService.getWeeklyData();
     setState(() {
-      _cigaretteCounts = counts;
-      _heatmapData = heatmapData;
+      _isLoading = true;
+      _errorMessage = '';
     });
+
+    try {
+      String today = DateTime.now().toIso8601String().substring(0, 10);
+      Map<String, int> counts = await SQLiteService.getCigaretteCounts(today);
+      Map<DateTime, int> heatmapData = await SQLiteService.getWeeklyData();
+
+      setState(() {
+        _cigaretteCounts = counts;
+        _heatmapData = heatmapData;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading data: $e';
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Statistics',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+          ? Center(child: Text(_errorMessage))
+          : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Cigarettes Smoked Today',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              SizedBox(height: 16.0),
-              SizedBox(
-                height: 300.0,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: _getMaxY(),
-                    barGroups: _getBarGroups(),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (double value, TitleMeta meta) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                value.toInt().toString(),
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10,
-                                ),
+              _buildGraphCard(
+                context,
+                title: 'Cigarettes Smoked Today',
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 300.0,
+                      child: _cigaretteCounts.isEmpty
+                          ? const Center(child: Text('No data for today'))
+                          : BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: _getMaxY(),
+                          barGroups: _getBarGroups(),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: (double value, TitleMeta meta) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      value.toInt().toString(),
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                reservedSize: 30,
                               ),
-                            );
-                          },
-                          reservedSize: 30,
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          interval: 1,
-                          getTitlesWidget: (double value, TitleMeta meta) {
-                            return Text(
-                              value.toInt().toString(),
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 30,
+                                interval: 1,
+                                getTitlesWidget: (double value, TitleMeta meta) {
+                                  return Text(
+                                    value.toInt().toString(),
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                            ),
+                          ),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          gridData: const FlGridData(show: false),
                         ),
                       ),
                     ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border.all(color: Colors.grey),
+                    const SizedBox(height: 16.0),
+                    Text(
+                      'Total cigarettes today: ${_cigaretteCounts.values.fold(0, (sum, count) => sum + count)}',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    gridData: FlGridData(show: false),
-                  ),
+                  ],
                 ),
               ),
-              SizedBox(height: 16.0),
-              Text(
-                'Total cigarettes today: ${_cigaretteCounts.values.fold(0, (sum, count) => sum + count)}',
-                style: Theme.of(context).textTheme.titleMedium,
+              const SizedBox(height: 16.0),
+              _buildGraphCard(
+                context,
+                title: 'Smoking Heatmap',
+                child: Column(
+                  children: [
+                    Center(
+                      child: _heatmapData.isEmpty
+                          ? const Text('No data for heatmap')
+                          : HeatMap(
+                        datasets: _heatmapData,
+                        startDate: DateTime.now().subtract(Duration(days: 30)),
+                        endDate: DateTime.now(),
+                        colorMode: ColorMode.color,
+                        defaultColor: Colors.white,
+                        textColor: Colors.black,
+                        showColorTip: false,
+                        showText: true,
+                        scrollable: true,
+                        size: 30,
+                        colorsets: {
+                          1: Colors.red[50]!,
+                          3: Colors.red[200]!,
+                          5: Colors.red[400]!,
+                          7: Colors.red[600]!,
+                          9: Colors.red[800]!,
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    Center(
+                      child: Text(
+                        'Color intensity indicates the number of cigarettes smoked.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 32.0),
-              Text(
-                'Smoking Heatmap',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              SizedBox(height: 16.0),
-              Center(
-                child: HeatMap(
-                  datasets: _heatmapData,
-                  startDate: DateTime.now().subtract(Duration(days: 30)),
-                  endDate: DateTime.now(),
-                  colorMode: ColorMode.color,
-                  defaultColor: Colors.white,
-                  textColor: Colors.black,
-                  showColorTip: false,
-                  showText: true,
-                  scrollable: true,
-                  size: 30,
-                  colorsets: {
-                    1: Colors.red[50]!,
-                    3: Colors.red[200]!,
-                    5: Colors.red[400]!,
-                    7: Colors.red[600]!,
-                    9: Colors.red[800]!,
+              const SizedBox(height: 16.0),
+              _buildGraphCard(
+                context,
+                title: "Heartrate",
+                child: FutureBuilder<Widget>(
+                  future: _buildHeartrateChart(),
+                  builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return snapshot.data ?? Container();
+                    }
                   },
                 ),
               ),
-              SizedBox(height: 16.0),
-              Center(
-                child: Text(
-                  'Color intensity indicates the number of cigarettes smoked.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                  textAlign: TextAlign.center,
+              const SizedBox(height: 16.0),
+              _buildGraphCard(
+                context,
+                title: "Distance",
+                child: FutureBuilder<Widget>(
+                  future: _buildDistanceChart(),
+                  builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return snapshot.data ?? Container();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              _buildGraphCard(
+                context,
+                title: "Calories",
+                child: FutureBuilder<Widget>(
+                  future: _buildCaloriesChart(),
+                  builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return snapshot.data ?? Container();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              _buildGraphCard(
+                context,
+                title: "Sleep",
+                child: FutureBuilder<Widget>(
+                  future: _buildSleepChart(),
+                  builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return snapshot.data ?? Container();
+                    }
+                  },
                 ),
               ),
             ],
@@ -162,7 +252,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             toY: (_cigaretteCounts[hourKey] ?? 0).toDouble(),
             color: Colors.blue,
             width: 16,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           ),
         ],
       );
@@ -172,5 +262,267 @@ class _StatisticsPageState extends State<StatisticsPage> {
   double _getMaxY() {
     if (_cigaretteCounts.isEmpty) return 5;
     return _cigaretteCounts.values.reduce((max, value) => max > value ? max : value).toDouble() + 1;
+  }
+
+  Widget _buildGraphCard(BuildContext context, {required String title, required Widget child}) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      elevation: 4,
+      shadowColor: Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Colors.grey.withOpacity(0.3),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16.0),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Placeholder for a line chart for heart rate
+  Future<Widget> _buildHeartrateChart() async {
+    final endDate = DateTime.now().subtract(const Duration(days: 1));
+    final startDate = endDate.subtract(const Duration(days: 7));
+    final measures = await PatientRemoteRepository.getHeartRateAverages(startDate, endDate);
+    return SizedBox(
+      height: 300,
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              spots: [
+                FlSpot(1, measures?.elementAt(0)['average_heart_rate']),
+                FlSpot(2, measures?.elementAt(1)['average_heart_rate']),
+                FlSpot(3, measures?.elementAt(2)['average_heart_rate']),
+                FlSpot(4, measures?.elementAt(3)['average_heart_rate']),
+                FlSpot(5, measures?.elementAt(4)['average_heart_rate']),
+                FlSpot(6, measures?.elementAt(5)['average_heart_rate']),
+                FlSpot(7, measures?.elementAt(6)['average_heart_rate']),
+              ],
+              isCurved: true,
+              color: Colors.red,
+              barWidth: 4,
+              belowBarData: BarAreaData(
+                show: true,
+                color: Colors.red.withOpacity(0.3),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<Widget> _buildDistanceChart() async {
+    final today = DateTime.now();
+    final m1 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 1)));
+    final m2 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 2)));
+    final m3 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 3)));
+    final m4 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 4)));
+    final m5 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 5)));
+    final m6 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 6)));
+    final m7 = await PatientRemoteRepository.getDayTotalDistance(today.subtract(const Duration(days: 7)));
+
+    return SizedBox(
+      height: 200,
+      child: BarChart(
+        BarChartData(
+          barGroups: [
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(toY: m1!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+            BarChartGroupData(
+              x: 2,
+              barRods: [
+                BarChartRodData(toY: m2!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+            BarChartGroupData(
+              x: 3,
+              barRods: [
+                BarChartRodData(toY: m3!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+            BarChartGroupData(
+              x: 4,
+              barRods: [
+                BarChartRodData(toY: m4!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+
+            BarChartGroupData(
+              x: 5,
+              barRods: [
+                BarChartRodData(toY: m5!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+            BarChartGroupData(
+              x: 6,
+              barRods: [
+                BarChartRodData(toY: m6!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+
+            BarChartGroupData(
+              x: 7,
+              barRods: [
+                BarChartRodData(toY: m7!.toDouble()/100000, color: Colors.blue),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<Widget> _buildCaloriesChart() async {
+    final today = DateTime.now();
+    final m1 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 1)));
+    final m2 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 2)));
+    final m3 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 3)));
+    final m4 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 4)));
+    final m5 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 5)));
+    final m6 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 6)));
+    final m7 = await PatientRemoteRepository.getDayTotalCalories(today.subtract(const Duration(days: 7)));
+
+    return SizedBox(
+      height: 200,
+      child: BarChart(
+        BarChartData(
+          barGroups: [
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(toY: m1!.toDouble(), color: Colors.orange),
+              ],
+            ),
+            BarChartGroupData(
+              x: 2,
+              barRods: [
+                BarChartRodData(toY: m2!.toDouble(), color: Colors.orange),
+              ],
+            ),
+            BarChartGroupData(
+              x: 3,
+              barRods: [
+                BarChartRodData(toY: m3!.toDouble(), color: Colors.orange),
+              ],
+            ),
+            BarChartGroupData(
+              x: 4,
+              barRods: [
+                BarChartRodData(toY: m4!.toDouble(), color: Colors.orange),
+              ],
+            ),
+
+            BarChartGroupData(
+              x: 5,
+              barRods: [
+                BarChartRodData(toY: m5!.toDouble(), color: Colors.orange),
+              ],
+            ),
+            BarChartGroupData(
+              x: 6,
+              barRods: [
+                BarChartRodData(toY: m6!.toDouble(), color: Colors.orange),
+              ],
+            ),
+
+            BarChartGroupData(
+              x: 7,
+              barRods: [
+                BarChartRodData(toY: m7!.toDouble(), color: Colors.orange),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Future<Widget> _buildSleepChart() async {
+    final today = DateTime.now();
+    int? m1 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 1)));
+    m1 ??= 0;
+    int? m2 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 2)));
+    int? m3 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 3)));
+    int? m4 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 4)));
+    int? m5 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 5)));
+    int? m6 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 6)));
+    int? m7 = await PatientRemoteRepository.getDayTotalSleep(today.subtract(const Duration(days: 7)));
+
+    m2 ??= 0;
+    m3 ??= 0;
+    m4 ??= 0;
+    m5 ??= 0;
+    m6 ??= 0;
+    m7 ??= 0;
+
+    return SizedBox(
+      height: 200,
+      child: BarChart(
+
+        BarChartData(
+          barGroups: [
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(toY: m1!.toDouble()/60, color: Colors.lightBlueAccent),
+              ],
+            ),
+            BarChartGroupData(
+              x: 2,
+              barRods: [
+                BarChartRodData(toY: m2!.toDouble()/60, color: Colors.lightBlueAccent),
+              ],
+            ),
+            BarChartGroupData(
+              x: 3,
+              barRods: [
+                BarChartRodData(toY: m3!.toDouble()/60, color: Colors.lightBlueAccent),
+              ],
+            ),
+            BarChartGroupData(
+              x: 4,
+              barRods: [
+                BarChartRodData(toY: m4!.toDouble()/60, color: Colors.lightBlueAccent),
+              ],
+            ),
+
+            BarChartGroupData(
+              x: 5,
+              barRods: [
+                BarChartRodData(toY: m5!.toDouble()/60, color: Colors.lightBlueAccent),
+              ],
+            ),
+            BarChartGroupData(
+              x: 6,
+              barRods: [
+                BarChartRodData(toY: m6!.toDouble()/60, color: Colors.lightBlueAccent),
+              ],
+            ),
+            BarChartGroupData(
+              x: 7,
+              barRods: [
+                BarChartRodData(toY: m7!.toDouble()/60, color: Colors.lightBlueAccent),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
