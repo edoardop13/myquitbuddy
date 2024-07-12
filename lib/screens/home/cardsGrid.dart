@@ -21,7 +21,7 @@ class CardsGrid extends StatelessWidget {
                   fontWeight: FontWeight.bold
               ),
             ),
-            const SizedBox(width: 8.0),
+            const SizedBox(width: 2.0),
             IconButton(
               icon: Icon(Icons.info_outline, color: Theme.of(context).primaryColor),
               onPressed: () => _showInfoDialog(context),
