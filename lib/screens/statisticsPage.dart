@@ -67,144 +67,149 @@ class _StatisticsPageState extends State<StatisticsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Cigarettes Smoked Today',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16.0),
-              SizedBox(
-                height: 300.0,
-                child: _cigaretteCounts.isEmpty
-                    ? const Center(child: Text('No data for today'))
-                    : BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: _getMaxY(),
-                    barGroups: _getBarGroups(),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (double value, TitleMeta meta) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                value.toInt().toString(),
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10,
-                                ),
+              _buildGraphCard(
+                context,
+                title: 'Cigarettes Smoked Today',
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 300.0,
+                      child: _cigaretteCounts.isEmpty
+                          ? const Center(child: Text('No data for today'))
+                          : BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: _getMaxY(),
+                          barGroups: _getBarGroups(),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: (double value, TitleMeta meta) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      value.toInt().toString(),
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                reservedSize: 30,
                               ),
-                            );
-                          },
-                          reservedSize: 30,
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          interval: 1,
-                          getTitlesWidget: (double value, TitleMeta meta) {
-                            return Text(
-                              value.toInt().toString(),
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 30,
+                                interval: 1,
+                                getTitlesWidget: (double value, TitleMeta meta) {
+                                  return Text(
+                                    value.toInt().toString(),
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                            ),
+                          ),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          gridData: const FlGridData(show: false),
                         ),
                       ),
                     ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border.all(color: Colors.grey),
+                    const SizedBox(height: 16.0),
+                    Text(
+                      'Total cigarettes today: ${_cigaretteCounts.values.fold(0, (sum, count) => sum + count)}',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    gridData: const FlGridData(show: false),
-                  ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16.0),
-              Text(
-                'Total cigarettes today: ${_cigaretteCounts.values.fold(0, (sum, count) => sum + count)}',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 32.0),
-              Text(
-                'Smoking Heatmap',
-                style: Theme.of(context).textTheme.titleLarge,
+              _buildGraphCard(
+                context,
+                title: 'Smoking Heatmap',
+                child: Column(
+                  children: [
+                    Center(
+                      child: _heatmapData.isEmpty
+                          ? const Text('No data for heatmap')
+                          : HeatMap(
+                        datasets: _heatmapData,
+                        startDate: DateTime.now().subtract(Duration(days: 30)),
+                        endDate: DateTime.now(),
+                        colorMode: ColorMode.color,
+                        defaultColor: Colors.white,
+                        textColor: Colors.black,
+                        showColorTip: false,
+                        showText: true,
+                        scrollable: true,
+                        size: 30,
+                        colorsets: {
+                          1: Colors.red[50]!,
+                          3: Colors.red[200]!,
+                          5: Colors.red[400]!,
+                          7: Colors.red[600]!,
+                          9: Colors.red[800]!,
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    Center(
+                      child: Text(
+                        'Color intensity indicates the number of cigarettes smoked.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16.0),
-              Center(
-                child: _heatmapData.isEmpty
-                    ? const Text('No data for heatmap')
-                    : HeatMap(
-                  datasets: _heatmapData,
-                  startDate: DateTime.now().subtract(Duration(days: 30)),
-                  endDate: DateTime.now(),
-                  colorMode: ColorMode.color,
-                  defaultColor: Colors.white,
-                  textColor: Colors.black,
-                  showColorTip: false,
-                  showText: true,
-                  scrollable: true,
-                  size: 30,
-                  colorsets: {
-                    1: Colors.red[50]!,
-                    3: Colors.red[200]!,
-                    5: Colors.red[400]!,
-                    7: Colors.red[600]!,
-                    9: Colors.red[800]!,
+              _buildGraphCard(
+                context,
+                title: "Heartrate",
+                child: FutureBuilder<Widget>(
+                  future: _buildLineChart(),
+                  builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return snapshot.data ?? Container();
+                    }
                   },
                 ),
               ),
               const SizedBox(height: 16.0),
-              Center(
-                child: Text(
-                  'Color intensity indicates the number of cigarettes smoked.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                  textAlign: TextAlign.center,
-                ),
+              _buildGraphCard(
+                context,
+                title: "Distance",
+                child: const Text("Placeholder"),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildGraphCard(
-                    context,
-                    title: "Heartrate",
-                    child: FutureBuilder<Widget>(future: _buildLineChart(), builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        return snapshot.data ?? Container();
-                      }
-                    },), // Implement a method to build line chart for heart rate
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildGraphCard(
-                    context,
-                    title: "Distance",
-                    child: const Text("Placeholder")//_buildBarChart(), // Implement a method to build bar chart for distance
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildGraphCard(
-                    context,
-                    title: "Calories",
-                    child: _buildPieChart(), // Implement a method to build pie chart for calories
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildGraphCard(
-                    context,
-                    title: "Sleep",
-                    child: const Text("aoskdpsa"),//_buildLineChart(), // Implement a method to build line chart for sleep
-                  ),
-                ],
+              const SizedBox(height: 16.0),
+              _buildGraphCard(
+                context,
+                title: "Calories",
+                child: _buildPieChart(),
+              ),
+              const SizedBox(height: 16.0),
+              _buildGraphCard(
+                context,
+                title: "Sleep",
+                child: const Text("aoskdpsa"),
               ),
             ],
           ),
@@ -296,7 +301,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Future<Widget> _buildBarChart() async {
     final endDate = DateTime.now().subtract(const Duration(days: 1));
     final startDate = endDate.subtract(const Duration(days: 7));
-   // final measures = await PatientRemoteRepository.getHeartRateAverages(startDate, endDate);
+    // final measures = await PatientRemoteRepository.getHeartRateAverages(startDate, endDate);
     return SizedBox(
       height: 200,
       child: BarChart(
@@ -365,4 +370,3 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 }
-
