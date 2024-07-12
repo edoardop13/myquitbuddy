@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 import 'cardsGrid.dart';
 import 'package:myquitbuddy/utils/sqlite_service.dart';
+import 'package:myquitbuddy/theme.dart';
 
 class CigaretteTracker extends StatefulWidget {
   @override
@@ -91,24 +93,28 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkSelected(); // for changes if dark mode
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Non-scrollable part
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
                 CircularIconButton(
-                  onPressed: _incrementCounter,
-                  icon: const Icon(
-                    Icons.smoking_rooms,
-                    size: 80,
-                    color: Colors.white,
-                  ),
-                  size: 200,
-                  backgroundColor: _getColor(),
+                onPressed: _incrementCounter,
+                icon: const Icon(
+                  Icons.smoking_rooms,
+                  size: 80,
+                  color: Colors.white,
+                ),
+                size: 200,
+                backgroundColor: _getColor(),
+                isDarkMode: isDarkMode,
                 ),
                 const SizedBox(height: 16.0),
                 Text(
@@ -179,6 +185,7 @@ class CircularIconButton extends StatelessWidget {
   final Icon icon;
   final double size;
   final Color backgroundColor;
+  final bool isDarkMode;
 
   const CircularIconButton({
     Key? key,
@@ -186,6 +193,7 @@ class CircularIconButton extends StatelessWidget {
     required this.icon,
     this.size = 50.0,
     this.backgroundColor = Colors.blue,
+    required this.isDarkMode,
   }) : super(key: key);
 
   @override
@@ -196,7 +204,9 @@ class CircularIconButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         shape: BoxShape.circle,
-        boxShadow: [
+        boxShadow: isDarkMode
+            ? []  // No shadow in dark mode
+            : [
           BoxShadow(
             color: Colors.white.withOpacity(0.8),
             offset: Offset(-6.0, -6.0),
