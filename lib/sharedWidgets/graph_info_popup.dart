@@ -27,6 +27,11 @@ class GraphInfoPopup extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (type == InfoPopupType.smokedToday)
+                        _buildSection("Cigarettes smoked hourly", [
+                          "This graph shows the number of cigarettes you have smoked hourly throughout the current day. ",
+                          "The data is updated in real-time, providing you with an accurate representation of your smoking pattern.",
+                        ]),
                       if (type == InfoPopupType.heartrate)
                         _buildSection("Heartrate", [
                           "The average number of times your heart beats per minute in the last 7 days.",
@@ -85,6 +90,8 @@ class GraphInfoPopup extends StatelessWidget {
   String getInfoTitle() {
     if (type == InfoPopupType.heartrate) {
       return "Heartrate of Last 7 days";
+    } else if (type == InfoPopupType.smokedToday) {
+      return "Today's Cigarettes";
     } else if (type == InfoPopupType.calories) {
       return "Calories of Last 7 days";
     } else if (type == InfoPopupType.sleep) {
