@@ -81,13 +81,13 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
     final snackBar = SnackBar(
       content: Text('Cigarette count incremented. $message',
       style: TextStyle(
-        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+        color: Colors.white,
       ),),
       duration: const Duration(seconds: 5),
       action: SnackBarAction(
         label: 'Undo',
         onPressed: _undoAction,
-        textColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+        textColor: Colors.cyan,
       ),
       backgroundColor: Colors.grey[800],
     );
