@@ -385,85 +385,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
       height: 200,
       child: BarChart(
         BarChartData(
-            titlesData: FlTitlesData(
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 40,
-                  getTitlesWidget: (value, meta) {
-                    // Customize the text for the Y-axis here
-                    switch (value.toInt()) {
-                      case 1:
-                        return Text(DateTime.parse(measures?.elementAt(1)['date']).day.toString()+"/"+DateTime.parse(measures?.elementAt(1)['date']).month.toString());
-                      case 2:
-                        return Text(DateTime.parse(measures?.elementAt(2)['date']).day.toString()+"/"+DateTime.parse(measures?.elementAt(2)['date']).month.toString());
-                      case 3:
-                        return Text(DateTime.parse(measures?.elementAt(3)['date']).day.toString()+"/"+DateTime.parse(measures?.elementAt(3)['date']).month.toString());
-                      case 4:
-                        return Text(DateTime.parse(measures?.elementAt(4)['date']).day.toString()+"/"+DateTime.parse(measures?.elementAt(4)['date']).month.toString());
-                      case 5:
-                        return Text(DateTime.parse(measures?.elementAt(5)['date']).day.toString()+"/"+DateTime.parse(measures?.elementAt(5)['date']).month.toString());
-                      case 6:
-                        return Text(DateTime.parse(measures?.elementAt(6)['date']).day.toString()+"/"+DateTime.parse(measures?.elementAt(6)['date']).month.toString());
-                      case 7:
-                        return Text(DateTime.parse(measures?.elementAt(7)['date']).day.toString()+"/"+DateTime.parse(measures?.elementAt(7)['date']).month.toString());
-                      default:
-                        return Text('');
-                    }
-                  },
-                ),
-              ),
-            ),
           barGroups: [
-            BarChartGroupData(
-              x: 1,
-              barRods: [
-                BarChartRodData(toY: measures?.elementAt(1)['total_distance']/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 2,
-              barRods: [
-                BarChartRodData(toY: measures?.elementAt(2)['total_distance']/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 3,
-              barRods: [
-                BarChartRodData(toY: measures?.elementAt(3)['total_distance']/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 4,
-              barRods: [
-                BarChartRodData(toY: measures?.elementAt(4)['total_distance']/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 5,
-              barRods: [
-                BarChartRodData(toY: measures?.elementAt(5)['total_distance']/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 6,
-              barRods: [
-                BarChartRodData(toY: measures?.elementAt(6)['total_distance']/100000, color: Colors.blue),
-              ],
-            ),
-            BarChartGroupData(
-              x: 7,
-              barRods: [
-                BarChartRodData(toY: measures?.elementAt(7)['total_distance']/100000, color: Colors.blue),
-              ],
-            ),
-            //for (int i = 0; i < 7; i++)
-            //  BarChartGroupData(
-            //    x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
-            //    barRods: [
-            //      BarChartRodData(toY: measures?.elementAt(i)['total_distance']/100000, color: Colors.blue),
-            //    ],
-            //  ),
+            for (int i = 1; i < 8; i++)
+              BarChartGroupData(
+                x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
+                barRods: [
+                  BarChartRodData(toY: measures?.elementAt(i)['total_distance']/100000, color: Colors.blue),
+                ],
+              ),
           ],
         ),
       ),
@@ -480,7 +409,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       child: BarChart(
         BarChartData(
           barGroups: [
-            for (int i = 0; i < 7; i++)
+            for (int i = 1; i < 8; i++)
               BarChartGroupData(
                 x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
                 barRods: [
@@ -504,7 +433,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       child: BarChart(
         BarChartData(
           barGroups: [
-            for (int i = 0; i < 7; i++)
+            for (int i = 1; i < 8; i++)
               BarChartGroupData(
                 x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
                 barRods: [

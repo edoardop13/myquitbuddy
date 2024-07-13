@@ -50,6 +50,12 @@ class GraphInfoPopup extends StatelessWidget {
                           "Factors such as age, fitness level and smoke can affect your distance.",
                           "Smoking can negatively impact your fitness level and overall health, which may indirectly affect your ability to cover distance.",
                         ]),
+                      if (type == InfoPopupType.heatmap)
+                        _buildSection("Smoking heatmap", [
+                           "A visual representation that shows the distribution and intensity of your smoking habits.",
+                           "The heatmap uses colors to represent the frequency of smoking occurrences",
+                           "The more intense the color, the greater the amount of cigarettes smoked on that given day",
+                        ]),
                       const SizedBox(height: 24),
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -85,6 +91,8 @@ class GraphInfoPopup extends StatelessWidget {
       return "Sleep of Last 7 days";
     } else if (type == InfoPopupType.distance) {
       return "Distance of Last 7 days";
+    } else if (type == InfoPopupType.heatmap) {
+      return "Heatmap of Last 30 days";
     } else {
       return "";
     }
