@@ -118,7 +118,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
 
     return Tooltip(
       message: message,
-      child: Icon(iconData, color: color, size: 48),
+      child: Icon(iconData, color: color, size: 30),
     );
   }
 
@@ -162,27 +162,22 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                   'Still no cigarettes today! Keep it up',
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
                 )
-                    : RichText(
-                  text: TextSpan(
-                    text: 'Cigarettes smoked today: ',
-                    style: Theme.of(context).textTheme.titleLarge,
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: '$_cigaretteCount',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8.0),
-                Row(
+                    : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Today's trend: ",
-                      style: Theme.of(context).textTheme.titleMedium,
+                    RichText(
+                      text: TextSpan(
+                        text: 'Cigarettes smoked today: ',
+                        style: Theme.of(context).textTheme.titleLarge,
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '$_cigaretteCount',
+                            style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 4.0),
+                    const SizedBox(width: 8.0),
                     _buildTrendIndicator(),
                   ],
                 ),
