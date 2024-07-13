@@ -46,6 +46,7 @@ We're constantly working to improve MyQuitBuddy. Here are some features we're pl
 - Achievement system to celebrate milestones
 - Tips and strategies for managing cravings
 - Blood oxygen level tracking
+- Web App support
 - Companion smartwatch app with the following features:
     - Quick cigarette logging with a single tap
     - Discreet vibration reminders for logging
