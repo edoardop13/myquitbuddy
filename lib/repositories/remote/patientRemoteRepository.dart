@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart'; // Add this line to import the 'dio' package
+import 'package:dio/dio.dart';
 import 'package:myquitbuddy/managers/tokenManager.dart';
 import 'package:myquitbuddy/models/distance.dart';
 import 'package:myquitbuddy/models/heartrate.dart';

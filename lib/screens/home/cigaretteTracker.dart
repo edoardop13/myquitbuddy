@@ -83,7 +83,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   void _showSnackBar(String message) {
     final snackBar = SnackBar(
       content: Text('Cigarette count incremented. $message',
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
         ),),
       duration: const Duration(seconds: 5),
