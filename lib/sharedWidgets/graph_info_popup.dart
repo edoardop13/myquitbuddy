@@ -27,6 +27,11 @@ class GraphInfoPopup extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (type == InfoPopupType.smokedToday)
+                        _buildSection("Cigarettes smoked hourly", [
+                          "This graph shows the number of cigarettes you have smoked hourly throughout the current day. ",
+                          "The data is updated in real-time, providing you with an accurate representation of your smoking pattern.",
+                        ]),
                       if (type == InfoPopupType.heartrate)
                         _buildSection("Heartrate", [
                           "The average number of times your heart beats per minute in the last 7 days.",
@@ -49,6 +54,12 @@ class GraphInfoPopup extends StatelessWidget {
                           "The total distance you have traveled in the last 7 days.",
                           "Factors such as age, fitness level and smoke can affect your distance.",
                           "Smoking can negatively impact your fitness level and overall health, which may indirectly affect your ability to cover distance.",
+                        ]),
+                      if (type == InfoPopupType.heatmap)
+                        _buildSection("Smoking heatmap", [
+                           "A visual representation that shows the distribution and intensity of your smoking habits.",
+                           "The heatmap uses colors to represent the frequency of smoking occurrences",
+                           "The more intense the color, the greater the amount of cigarettes smoked on that given day",
                         ]),
                       const SizedBox(height: 24),
                       Container(
@@ -79,12 +90,16 @@ class GraphInfoPopup extends StatelessWidget {
   String getInfoTitle() {
     if (type == InfoPopupType.heartrate) {
       return "Heartrate of Last 7 days";
+    } else if (type == InfoPopupType.smokedToday) {
+      return "Today's Cigarettes";
     } else if (type == InfoPopupType.calories) {
       return "Calories of Last 7 days";
     } else if (type == InfoPopupType.sleep) {
       return "Sleep of Last 7 days";
     } else if (type == InfoPopupType.distance) {
       return "Distance of Last 7 days";
+    } else if (type == InfoPopupType.heatmap) {
+      return "Heatmap of Last 30 days";
     } else {
       return "";
     }

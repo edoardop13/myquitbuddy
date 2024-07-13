@@ -18,7 +18,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   bool _isLoading = true;
   String _errorMessage = '';
 
-  @override
+          @override
   void initState() {
     super.initState();
     _loadData();
@@ -63,7 +63,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             children: [
               _buildGraphCard(
                 context,
-                title: 'Cigarettes Smoked Today',
+                title: 'Today\'s Cigarettes',
                 child: Column(
                   children: [
                     SizedBox(
@@ -253,7 +253,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         barRods: [
           BarChartRodData(
             toY: (_cigaretteCounts[hourKey] ?? 0).toDouble(),
-            color: Colors.blue,
+            color: Colors.orange,
             width: 16,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           ),
@@ -312,18 +312,73 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final endDate = DateTime.now().subtract(const Duration(days: 1));
     final startDate = endDate.subtract(const Duration(days: 7));
     final measures = await PatientRemoteRepository.getHeartRateAverages(startDate, endDate);
+
     return SizedBox(
-      height: 300,
+      height: 400,
       child: LineChart(
         LineChartData(
+          titlesData: FlTitlesData(
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+              axisNameWidget: Text(
+                'Average heartbeat',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              axisNameSize: 30,
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) {
+                  switch (value.toInt()) {
+                    case 1:
+                      return Text(DateTime.parse(measures?.elementAt(1)['date']).day.toString());
+                    case 2:
+                      return Text(DateTime.parse(measures?.elementAt(2)['date']).day.toString());
+                    case 3:
+                      return Text(DateTime.parse(measures?.elementAt(3)['date']).day.toString());
+                    case 4:
+                      return Text(DateTime.parse(measures?.elementAt(4)['date']).day.toString());
+                    case 5:
+                      return Text(DateTime.parse(measures?.elementAt(5)['date']).day.toString());
+                    case 6:
+                      return Text(DateTime.parse(measures?.elementAt(6)['date']).day.toString());
+                    case 7:
+                      return Text(DateTime.parse(measures?.elementAt(7)['date']).day.toString());
+                    default:
+                      return const Text('');
+                    }
+                },
+              ),
+              axisNameWidget: const Text(
+                'Day of the month',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              axisNameSize: 30,
+            ),
+          ),
           lineBarsData: [
             LineChartBarData(
               spots: [
-                for (int i = 0; i < 7; i++)
-                  FlSpot(
-                    double.parse(measures?.elementAt(i)['date'].split('-')[2]),
-                    measures?.elementAt(i)['average_heart_rate'],
-                  ),
+                FlSpot(1, measures?.elementAt(0)['average_heart_rate']),
+                FlSpot(2, measures?.elementAt(1)['average_heart_rate']),
+                FlSpot(3, measures?.elementAt(2)['average_heart_rate']),
+                FlSpot(4, measures?.elementAt(3)['average_heart_rate']),
+                FlSpot(5, measures?.elementAt(4)['average_heart_rate']),
+                FlSpot(6, measures?.elementAt(5)['average_heart_rate']),
+                FlSpot(7, measures?.elementAt(6)['average_heart_rate']),
+                //for (int i = 0; i < 7; i++)
+                //  FlSpot(
+                //    double.parse(measures?.elementAt(i)['date'].split('-')[2]),
+                //    measures?.elementAt(i)['average_heart_rate'],
+                //  ),
               ],
               isCurved: true,
               color: Colors.red,
@@ -345,15 +400,42 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final measures = await PatientRemoteRepository.getDailyDistanceTotal(startDate, endDate);
 
     return SizedBox(
-      height: 200,
+      height: 400,
       child: BarChart(
         BarChartData(
+          titlesData: const FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+              axisNameWidget: Text(
+                'Total distance (KM)',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              axisNameSize: 30,
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 42,
+              ),
+              axisNameWidget: Text(
+                'Day of the month',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              axisNameSize: 30,
+            ),
+          ),
           barGroups: [
-            for (int i = 0; i < 7; i++)
+            for (int i = 1; i < 8; i++)
               BarChartGroupData(
                 x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
                 barRods: [
-                  BarChartRodData(toY: measures?.elementAt(i)['total_distance']/100000, color: Colors.blue),
+                  BarChartRodData(toY: measures?.elementAt(i)['total_distance']/100000, color: Colors.greenAccent),
                 ],
               ),
           ],
@@ -368,11 +450,38 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final measures = await PatientRemoteRepository.getDailyCaloriesTotal(startDate, endDate);
 
     return SizedBox(
-      height: 200,
+      height: 400,
       child: BarChart(
         BarChartData(
+          titlesData: const FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+              axisNameWidget: Text(
+                'Total calories',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              axisNameSize: 30,
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 42,
+              ),
+              axisNameWidget: Text(
+                'Day of the month',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              axisNameSize: 30,
+            ),
+          ),
           barGroups: [
-            for (int i = 0; i < 7; i++)
+            for (int i = 1; i < 8; i++)
               BarChartGroupData(
                 x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
                 barRods: [
@@ -392,12 +501,38 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final measures = await PatientRemoteRepository.getDailySleepTotal(startDate, endDate);
 
     return SizedBox(
-      height: 200,
+      height: 350,
       child: BarChart(
-
         BarChartData(
+          titlesData: const FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+              axisNameWidget: Text(
+                'Total sleep (hours)',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              axisNameSize: 30,
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 42,
+              ),
+              axisNameWidget: Text(
+                'Day of the month',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              axisNameSize: 30,
+            ),
+          ),
           barGroups: [
-            for (int i = 0; i < 7; i++)
+            for (int i = 1; i < 8; i++)
               BarChartGroupData(
                 x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
                 barRods: [

@@ -12,6 +12,7 @@ class CigaretteTracker extends StatefulWidget {
 
 class _CigaretteTrackerState extends State<CigaretteTracker> {
   int _cigaretteCount = 0;
+  int _yesterdayCigaretteCount = 0;
   DateTime? _lastIncrementTime;
 
   @override
@@ -23,9 +24,11 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   Future<void> _loadData() async {
     String today = DateTime.now().toIso8601String().substring(0, 10);
     Map<String, int> counts = await SQLiteService.getCigaretteCounts(today);
+    int yesterdayCount = await SQLiteService.getYesterdayCigaretteCount();
 
     setState(() {
       _cigaretteCount = counts.values.fold(0, (sum, count) => sum + count);
+      _yesterdayCigaretteCount = yesterdayCount;
     });
   }
 
@@ -80,24 +83,49 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
   void _showSnackBar(String message) {
     final snackBar = SnackBar(
       content: Text('Cigarette count incremented. $message',
-      style: TextStyle(
-        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-      ),),
+        style: TextStyle(
+          color: Colors.white,
+        ),),
       duration: const Duration(seconds: 5),
       action: SnackBarAction(
         label: 'Undo',
         onPressed: _undoAction,
-        textColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+        textColor: Colors.cyan,
       ),
       backgroundColor: Colors.grey[800],
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  Widget _buildTrendIndicator() {
+    IconData iconData;
+    Color color;
+    String message;
+
+    if (_cigaretteCount < _yesterdayCigaretteCount) {
+      iconData = Icons.arrow_drop_up;
+      color = Colors.green;
+      message = "You're doing better than yesterday!";
+    } else if (_cigaretteCount > _yesterdayCigaretteCount) {
+      iconData = Icons.arrow_drop_down;
+      color = Colors.red;
+      message = "You've smoked more than yesterday.";
+    } else {
+      iconData = Icons.drag_handle;
+      color = Colors.yellow;
+      message = "You're smoking the same as yesterday.";
+    }
+
+    return Tooltip(
+      message: message,
+      child: Icon(iconData, color: color, size: 30),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.isDarkSelected(); // for changes if dark mode
+    final isDarkMode = themeProvider.isDarkSelected();
 
     return Scaffold(
       body: Column(
@@ -105,19 +133,19 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
         children: <Widget>[
           // Non-scrollable part
           Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
                 CircularIconButton(
-                onPressed: _incrementCounter,
-                icon: const Icon(
-                  Icons.smoking_rooms,
-                  size: 80,
-                  color: Colors.white,
-                ),
-                size: 200,
-                backgroundColor: _getColor(),
-                isDarkMode: isDarkMode,
+                  onPressed: _incrementCounter,
+                  icon: const Icon(
+                    Icons.smoking_rooms,
+                    size: 80,
+                    color: Colors.white,
+                  ),
+                  size: 200,
+                  backgroundColor: _getColor(),
+                  isDarkMode: isDarkMode,
                 ),
                 const SizedBox(height: 16.0),
                 Text(
@@ -134,17 +162,24 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                   'Still no cigarettes today! Keep it up',
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
                 )
-                    : RichText(
-                  text: TextSpan(
-                    text: 'Cigarettes smoked today: ',
-                    style: Theme.of(context).textTheme.titleLarge,
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: '$_cigaretteCount',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+                    : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        text: 'Cigarettes smoked today: ',
+                        style: Theme.of(context).textTheme.titleLarge,
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '$_cigaretteCount',
+                            style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    _buildTrendIndicator(),
+                  ],
                 ),
               ],
             ),
