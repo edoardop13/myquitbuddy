@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'cardsGrid.dart';
@@ -13,11 +14,31 @@ class CigaretteTracker extends StatefulWidget {
 class _CigaretteTrackerState extends State<CigaretteTracker> {
   int _cigaretteCount = 0;
   DateTime? _lastIncrementTime;
+  String data = "No data";
+
+  // The integration with the native Apple Watch code is done through a MethodChannel
+  final channel = MethodChannel('com.example.myquitbuddy.watchapp');
+
+  Future<void> _initFlutterChannel() async {
+    channel.setMethodCallHandler((call) async {
+      data = "entra";
+        switch (call.method) {
+          case "sendCounterToFlutter":
+            _cigaretteCount = call.arguments["data"]["counter"];
+            _incrementCounter();
+            break;
+          default:
+            break;
+        }
+      });
+  }
+  // Finish integration with the native Apple Watch code
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _initFlutterChannel();
   }
 
   Future<void> _loadData() async {
@@ -103,6 +124,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
+          Text("$data"),
           // Non-scrollable part
           Padding(
               padding: const EdgeInsets.all(16.0),
@@ -158,7 +180,7 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black12,
                         blurRadius: 10.0,
@@ -167,8 +189,8 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
                       ),
                     ],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16.0),
                     child: SingleChildScrollView(
                       child: CardsGrid(),
                     ),
