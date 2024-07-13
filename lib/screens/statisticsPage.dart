@@ -253,7 +253,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         barRods: [
           BarChartRodData(
             toY: (_cigaretteCounts[hourKey] ?? 0).toDouble(),
-            color: Colors.blue,
+            color: Colors.orange,
             width: 16,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           ),
@@ -435,7 +435,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               BarChartGroupData(
                 x: int.parse(measures?.elementAt(i)['date'].split('-')[2]),
                 barRods: [
-                  BarChartRodData(toY: measures?.elementAt(i)['total_distance']/100000, color: Colors.blue),
+                  BarChartRodData(toY: measures?.elementAt(i)['total_distance']/100000, color: Colors.greenAccent),
                 ],
               ),
           ],
