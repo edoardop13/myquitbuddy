@@ -94,6 +94,7 @@ class _CustomCardHRState extends State<CustomHRCard> {
   final PatientRemoteRepository _apiService = PatientRemoteRepository();
   String _avgHeartRate = "";
   bool _isLoading = true;
+  bool _isActive = true;
 
   @override
   void initState() {
@@ -101,16 +102,25 @@ class _CustomCardHRState extends State<CustomHRCard> {
     _fetchData();
   }
 
+  @override
+  void dispose() {
+    _isActive = false;
+    super.dispose();
+  }
+
   Future<void> _fetchData() async {
+    if (!_isActive) return;  // Exit early if the widget is no longer active
     try {
       final endDate = DateTime.now().subtract(const Duration(days: 1));
       final startDate = endDate.subtract(const Duration(days: 7));
       final measures = await PatientRemoteRepository.getHeartRateAverages(startDate, endDate);
+      if (!_isActive) return;
       setState(() {
         _avgHeartRate = measures?.last['average_heart_rate'].toStringAsFixed(2);
         _isLoading = false;
       });
     } catch (e) {
+      if (!_isActive) return;
       setState(() {
         _isLoading = false;
       });
@@ -163,6 +173,7 @@ class _CustomCardDistanceState extends State<CustomDistanceCard> {
   final PatientRemoteRepository _apiService = PatientRemoteRepository();
   String _distance = "";
   bool _isLoading = true;
+  bool _isActive = true;
 
   @override
   void initState() {
@@ -170,15 +181,24 @@ class _CustomCardDistanceState extends State<CustomDistanceCard> {
     _fetchData();
   }
 
+  @override
+  void dispose() {
+    _isActive = false;
+    super.dispose();
+  }
+
   Future<void> _fetchData() async {
+    if (!_isActive) return;  // Exit early if the widget is no longer active
     try {
       final date = DateTime.now().subtract(const Duration(days: 1));
       final distance = await PatientRemoteRepository.getDayTotalDistance(date) ?? 0;
+      if (!_isActive) return;
       setState(() {
         _distance = (distance / 100000).toStringAsFixed(2);
         _isLoading = false;
       });
     } catch (e) {
+      if (!_isActive) return;
       setState(() {
         _isLoading = false;
       });
@@ -231,6 +251,7 @@ class _CustomCardCaloriesState extends State<CustomCaloriesCard> {
   final PatientRemoteRepository _apiService = PatientRemoteRepository();
   String _calories = "";
   bool _isLoading = true;
+  bool _isActive = true;
 
   @override
   void initState() {
@@ -238,15 +259,24 @@ class _CustomCardCaloriesState extends State<CustomCaloriesCard> {
     _fetchData();
   }
 
+  @override
+  void dispose() {
+    _isActive = false;
+    super.dispose();
+  }
+
   Future<void> _fetchData() async {
+    if (!_isActive) return;  // Exit early if the widget is no longer active
     try {
       final date = DateTime.now().subtract(const Duration(days: 1));
       final calories = await PatientRemoteRepository.getDayTotalCalories(date);
+      if (!_isActive) return;
       setState(() {
         _calories = calories?.toStringAsFixed(2) ?? "";
         _isLoading = false;
       });
     } catch (e) {
+      if (!_isActive) return;
       setState(() {
         _isLoading = false;
       });
@@ -299,6 +329,7 @@ class _CustomCardSleepState extends State<CustomSleepCard> {
   final PatientRemoteRepository _apiService = PatientRemoteRepository();
   String _sleep = "";
   bool _isLoading = true;
+  bool _isActive = true;
 
   @override
   void initState() {
@@ -306,15 +337,24 @@ class _CustomCardSleepState extends State<CustomSleepCard> {
     _fetchData();
   }
 
+  @override
+  void dispose() {
+    _isActive = false;
+    super.dispose();
+  }
+
   Future<void> _fetchData() async {
+    if (!_isActive) return;  // Exit early if the widget is no longer active
     try {
       final date = DateTime.now().subtract(const Duration(days: 1));
       final sleep = await PatientRemoteRepository.getDayTotalSleep(date) ?? 0;
+      if (!_isActive) return;
       setState(() {
         _sleep = (sleep / 60).toStringAsFixed(2);
         _isLoading = false;
       });
     } catch (e) {
+      if (!_isActive) return;
       setState(() {
         _isLoading = false;
       });
