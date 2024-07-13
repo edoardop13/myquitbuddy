@@ -25,6 +25,23 @@ class SQLiteService {
     );
   }
 
+  static Future<int> getYesterdayCigaretteCount() async {
+    final db = await _openDatabase();
+    final yesterday = DateTime.now().subtract(Duration(days: 1));
+    final yesterdayStr = yesterday.toIso8601String().substring(0, 10);
+
+    try {
+      final result = await db.query(_tableName, where: 'date = ?', whereArgs: [yesterdayStr]);
+      if (result.isNotEmpty) {
+        final counts = json.decode(result.first['counts'] as String) as Map<String, dynamic>;
+        return counts.values.fold<int>(0, (sum, count) => sum + (count as int));
+      }
+      return 0;
+    } finally {
+      await db.close();
+    }
+  }
+
   static Future<void> decrementCigaretteCount(DateTime dateTime) async {
     final db = await _openDatabase();
     final date = dateTime.toIso8601String().substring(0, 10);
@@ -48,6 +65,8 @@ class SQLiteService {
       await db.close();
     }
   }
+
+
 
   static Future<void> incrementCigaretteCount(DateTime dateTime) async {
     final db = await _openDatabase();
