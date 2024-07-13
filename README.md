@@ -52,6 +52,17 @@ We're constantly working to improve MyQuitBuddy. Here are some features we're pl
     - At-a-glance view of today's cigarette count and trend
     - Quick access to key health metrics
     - Motivational notifications and achievement alerts
+ 
+## Screenshots
+
+<img src="https://github.com/edoardop13/myquitbuddy/blob/master/screenshots/sc6.png" width="30%"></img> 
+<img src="https://github.com/edoardop13/myquitbuddy/blob/master/screenshots/sc7.png" width="30%"></img> 
+<img src="https://github.com/edoardop13/myquitbuddy/blob/master/screenshots/sc8.png" width="30%"></img> 
+<img src="https://github.com/edoardop13/myquitbuddy/blob/master/screenshots/sc1.png" width="30%"></img> 
+<img src="https://github.com/edoardop13/myquitbuddy/blob/master/screenshots/sc2.png" width="30%"></img> 
+<img src="https://github.com/edoardop13/myquitbuddy/blob/master/screenshots/sc3.png" width="30%"></img> 
+<img src="https://github.com/edoardop13/myquitbuddy/blob/master/screenshots/sc4.png" width="30%"></img> 
+<img src="https://github.com/edoardop13/myquitbuddy/blob/master/screenshots/sc5.png" width="30%"></img> 
 
 ## License
 
