@@ -63,7 +63,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             children: [
               _buildGraphCard(
                 context,
-                title: 'Cigarettes Smoked Today',
+                title: 'Today\'s Cigarettes',
                 child: Column(
                   children: [
                     SizedBox(
