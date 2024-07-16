@@ -4,19 +4,17 @@ import WatchConnectivity
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
-    var session: WCSession?
     
     override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         /// This code is for the integration with Apple Watch App
+        assert(WCSession.isSupported(), "This app requires Watch Connectivity support!")
+        WCSession.default.delegate = self
+        WCSession.default.activate()
+        
         initFlutterChannel()
-        if WCSession.isSupported() {
-            session = WCSession.default;
-            session?.delegate = self;
-            session?.activate();
-        }
 
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -25,7 +23,7 @@ import WatchConnectivity
     private func initFlutterChannel() {
       if let controller = window?.rootViewController as? FlutterViewController {
         let channel = FlutterMethodChannel(
-          name: "com.example.myquitbuddy",
+          name: "com.example.myquitbuddy.watchkitapp",
           binaryMessenger: controller.binaryMessenger)
         
         channel.setMethodCallHandler({ [weak self] (
@@ -33,16 +31,26 @@ import WatchConnectivity
           result: @escaping FlutterResult) -> Void in
           switch call.method {
             case "flutterToWatch":
-              guard let watchSession = self?.session, watchSession.isPaired,
-                  watchSession.isReachable, let methodData = call.arguments as? [String: Any],
-                  let method = methodData["method"], let data = methodData["data"] as? Any else {
-                  result(false)
-               return
-               }
-            
-               let watchData: [String: Any] = ["method": method, "data": data]
-               watchSession.sendMessage(watchData, replyHandler: nil, errorHandler: nil)
-               result(true)
+              guard WCSession.default.activationState == .activated else {
+                  return
+              }
+              if let methodData = call.arguments as? [String: Any] {
+                  let method = methodData["method"]
+                  let data = methodData["data"]
+                  //              guard let watchSession = self?.session, watchSession.isPaired, let methodData = call.arguments as? [String: Any],
+                  //                  let method = methodData["method"], let data = methodData["data"] as? Any else {
+                  //                  result(false)
+                  //               return
+                  //               }
+                  
+                  let watchData: [String: Any] = ["method": method, "data": data]
+                  
+                  WCSession.default.sendMessage(watchData, replyHandler: nil) { error in
+                      print("errror: \(error)")
+                  }
+                  //               watchSession.sendMessage(watchData, replyHandler: nil, errorHandler: nil)
+              }
+              result(true)
             default:
                result(FlutterMethodNotImplemented)
             }
@@ -50,29 +58,51 @@ import WatchConnectivity
        }
     }
 }
-
 extension AppDelegate: WCSessionDelegate {
-    
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        
+        print("Activation completed")
+        var isReachable = false
+        if WCSession.default.activationState == .activated {
+            isReachable = WCSession.default.isReachable
+        }
+        print("Reachable \(isReachable)")
     }
     
-    func sessionDidBecomeInactive(_ session: WCSession) {
+    // Monitor WCSession reachability state changes.
+    //
+    func sessionReachabilityDidChange(_ session: WCSession) {
+        print("Session did change \(session.isReachable)")
         
-    }
-    
-    func sessionDidDeactivate(_ session: WCSession) {
-        
+        var isReachable = false
+        if WCSession.default.activationState == .activated {
+            isReachable = WCSession.default.isReachable
+        }
+        print("Reachable DidChange \(isReachable)")
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         DispatchQueue.main.async {
             if let method = message["method"] as? String, let controller = self.window?.rootViewController as? FlutterViewController {
                 let channel = FlutterMethodChannel(
-                    name: "com.example.myquitbuddy",
+                    name: "com.example.myquitbuddy.watchkitapp",
                     binaryMessenger: controller.binaryMessenger)
                 channel.invokeMethod(method, arguments: message)
             }
         }
     }
+    
+    func sessionDidBecomeInactive(_ session: WCSession) {
+        print("\(#function): activationState = \(session.activationState.rawValue)")
+    }
+    
+    func sessionDidDeactivate(_ session: WCSession) {
+        // Activate the new session after having switched to a new watch.
+        session.activate()
+    }
+    
+    func sessionWatchStateDidChange(_ session: WCSession) {
+        print("\(#function): activationState = \(session.activationState.rawValue)")
+    }
+    
+    
 }

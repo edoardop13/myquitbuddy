@@ -43,17 +43,27 @@ extension WatchViewModel: WCSessionDelegate {
     
     // Receive message From AppDelegate.swift that send from iOS devices
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        DispatchQueue.main.async {
-            guard let method = message["method"] as? String, let enumMethod = WatchReceiveMethod(rawValue: method) else {
-                return
-            }
-            
-            switch enumMethod {
-            case .sendCounterToNative:
-                self.cigarettes = (message["data"] as? Int) ?? 0
-            }
+        guard let method = message["method"] as? String, let enumMethod = WatchReceiveMethod(rawValue: method) else {
+            return
+        }
+        
+        switch enumMethod {
+        case .sendCounterToNative:
+            self.cigarettes = (message["data"] as? Int) ?? 0
         }
     }
+//    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+////        DispatchQueue.main.async {
+//            guard let method = message["method"] as? String, let enumMethod = WatchReceiveMethod(rawValue: method) else {
+//                return
+//            }
+//            
+//            switch enumMethod {
+//            case .sendCounterToNative:
+//                self.cigarettes = (message["data"] as? Int) ?? 0
+//            }
+////        }
+//    }
     
     func sendMessage(for method: String, data: [String: Any] = [:]) {
         guard session.isReachable else {

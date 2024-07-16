@@ -14,14 +14,12 @@ class CigaretteTracker extends StatefulWidget {
 class _CigaretteTrackerState extends State<CigaretteTracker> {
   int _cigaretteCount = 0;
   DateTime? _lastIncrementTime;
-  String data = "No data";
 
   // The integration with the native Apple Watch code is done through a MethodChannel
-  final channel = MethodChannel('com.example.myquitbuddy.watchapp');
+  final channel = MethodChannel('com.example.myquitbuddy.watchkitapp');
 
   Future<void> _initFlutterChannel() async {
     channel.setMethodCallHandler((call) async {
-      data = "entra";
         switch (call.method) {
           case "sendCounterToFlutter":
             _cigaretteCount = call.arguments["data"]["counter"];
@@ -48,9 +46,13 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
     setState(() {
       _cigaretteCount = counts.values.fold(0, (sum, count) => sum + count);
     });
+
+    // Send data to Native WatchOS app
+    await channel.invokeMethod(
+      "flutterToWatch", {"method": "sendCounterToNative", "data": _cigaretteCount});
   }
 
-  void _incrementCounter() {
+  void _incrementCounter() async {
     setState(() {
       if (_cigaretteCount < 100) {
         _cigaretteCount++;
@@ -59,15 +61,23 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
       }
     });
     _showSnackBar(_getMessage());
+
+    // Send data to Native WatchOS app
+    await channel.invokeMethod(
+      "flutterToWatch", {"method": "sendCounterToNative", "data": _cigaretteCount});
   }
 
-  void _undoAction() {
+  void _undoAction() async {
     if (_lastIncrementTime != null) {
       setState(() {
         _cigaretteCount--;
         SQLiteService.decrementCigaretteCount(_lastIncrementTime!);
         _lastIncrementTime = null;
       });
+
+      // Send data to Native WatchOS app
+      await channel.invokeMethod(
+        "flutterToWatch", {"method": "sendCounterToNative", "data": _cigaretteCount});
     }
   }
 
@@ -124,7 +134,6 @@ class _CigaretteTrackerState extends State<CigaretteTracker> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text("$data"),
           // Non-scrollable part
           Padding(
               padding: const EdgeInsets.all(16.0),
